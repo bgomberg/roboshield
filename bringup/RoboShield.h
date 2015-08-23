@@ -19,11 +19,14 @@ public:
   int getAnalog(uint8_t pin);
 
   void setServos(uint8_t data);
-  void lcdSetCursor(uint8_t col, uint8_t row);
-  void lcdPrintChar(char c); 
-  virtual size_t write(uint8_t);
   
+  // LCD functions
+  void lcdSetCursor(uint8_t col, uint8_t row);
+  void lcdClear(void);
+  void lcdPrintf(const char *format, ...);
+  virtual size_t write(uint8_t);
   using Print::write;
+
 private:
   void init(void);
   void setDataBus(uint8_t data);

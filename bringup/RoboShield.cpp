@@ -78,6 +78,26 @@ size_t RoboShield::write(uint8_t character) {
   return 1;
 }
 
+void RoboShield::lcdClear(void) {
+  // clear the display
+  lcdWrite(0x01, true);
+  delayMicroseconds(3300);
+  _lcd_line = 0;
+}
+
+void RoboShield::lcdPrintf(const char *format, ...) {
+  char buf[34];
+  va_list ap;
+  va_start(ap, format);
+  vsnprintf(buf, sizeof(buf), format, ap);
+  for(char *p = &buf[0]; *p; p++) { // emulate cooked mode for newlines
+    if(*p == '\n')
+      write('\r');
+    write(*p);
+  }
+  va_end(ap);
+}
+
 
 // Private methods
 ////////////////////////////////////////////////////////////////////////////////
@@ -124,8 +144,7 @@ void RoboShield::init(void) {
   // turn display on with no cursor or blinking default
   lcdWrite(0x0C, true);
   // clear the display
-  lcdWrite(0x01, true);
-  delayMicroseconds(3300);
+  lcdClear();
   // set entry mode
   lcdWrite(0x06, true);
 }

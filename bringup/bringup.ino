@@ -7,7 +7,7 @@ void setup() {
 
 void loop() {
   roboShield.setLED(roboShield.buttonPressed());
-  roboShield.println("HELLO");
-  roboShield.println(millis() / 1000);
-  delay(100);
+  roboShield.lcdClear();
+  roboShield.lcdPrintf("HELLO\nTIME: %d", millis());
+  delay(50);
 }
