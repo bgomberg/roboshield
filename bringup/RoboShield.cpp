@@ -70,18 +70,12 @@ void RoboShield::lcdSetCursor(uint8_t col, uint8_t row) {
     return;
   }
   const uint8_t addr = 0x80 + row * 0x40 + col;
-  lcdControl(addr);
+  lcdWrite(addr, true);
 }
 
-void RoboShield::lcdPrintChar(char c) {
-  digitalWrite(LCD_RS_PIN, HIGH);
-  setDataBus((uint8_t)c);
-  digitalWrite(LCD_EN_PIN, LOW);
-  delayMicroseconds(1);
-  digitalWrite(LCD_EN_PIN, HIGH);
-  delayMicroseconds(1);
-  digitalWrite(LCD_EN_PIN, LOW);
-  delayMicroseconds(100);
+size_t RoboShield::write(uint8_t character) {
+  lcdWrite(character, false);
+  return 1;
 }
 
 
@@ -95,6 +89,9 @@ void RoboShield::init(void) {
     return;
   }
   initialized = true;
+  
+  // initialize class variables
+  _lcd_line = 0;
 
   // configure any pins we don't want to be INPUT (the default)
   pinMode(BUTTON_PIN, INPUT_PULLUP);
@@ -117,20 +114,20 @@ void RoboShield::init(void) {
   digitalWrite(LCD_EN_PIN, LOW);
   digitalWrite(LCD_RS_PIN, LOW);
   // send function set command sequence
-  lcdControl(0x38);
+  lcdWrite(0x38, true);
   delayMicroseconds(4500);
   // second try
-  lcdControl(0x38);
+  lcdWrite(0x38, true);
   delayMicroseconds(150);
   // set # lines, font size, etc
-  lcdControl(0x38);
+  lcdWrite(0x38, true);
   // turn display on with no cursor or blinking default
-  lcdControl(0x0C);
+  lcdWrite(0x0C, true);
   // clear the display
-  lcdControl(0x01);
+  lcdWrite(0x01, true);
   delayMicroseconds(3300);
   // set entry mode
-  lcdControl(0x06);
+  lcdWrite(0x06, true);
 }
 
 void RoboShield::setDataBus(uint8_t data) {
@@ -146,8 +143,15 @@ void RoboShield::setDataBus(uint8_t data) {
   }
 }
 
-void RoboShield::lcdControl(uint8_t data) {
-  digitalWrite(LCD_RS_PIN, LOW);
+void RoboShield::lcdWrite(uint8_t data, bool is_control) {
+  if (data == '\n') {
+    _lcd_line = (_lcd_line + 1) % 2;
+    lcdSetCursor(0, _lcd_line);
+    return;
+  } else if (data == '\r') {
+    return;
+  }
+  digitalWrite(LCD_RS_PIN, is_control ? LOW : HIGH);
   setDataBus(data);
   digitalWrite(LCD_EN_PIN, LOW);
   delayMicroseconds(1);

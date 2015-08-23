@@ -2,9 +2,10 @@
 #define __ROBO_SHIELD_H__
 
 #include <inttypes.h>
+#include "Print.h"
 
 
-class RoboShield {
+class RoboShield : public Print {
 public:
   RoboShield() { init(); }
   
@@ -19,12 +20,16 @@ public:
 
   void setServos(uint8_t data);
   void lcdSetCursor(uint8_t col, uint8_t row);
-  void lcdPrintChar(char c);
+  void lcdPrintChar(char c); 
+  virtual size_t write(uint8_t);
   
+  using Print::write;
 private:
   void init(void);
   void setDataBus(uint8_t data);
-  void lcdControl(uint8_t data);
+  void lcdWrite(uint8_t data, bool is_control);
+  
+  uint8_t _lcd_line;
 };
 
 #endif
