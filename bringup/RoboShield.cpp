@@ -60,7 +60,7 @@ int RoboShield::getAnalog(uint8_t pin) {
 }
 
 void RoboShield::setServos(uint8_t data) {
-  setDataBus(data);
+  SHIFT_OUT_BYTE(data);
   digitalWrite(SERVO_LATCH_EN_PIN, HIGH);
   digitalWrite(SERVO_LATCH_EN_PIN, LOW);
 }
@@ -128,7 +128,10 @@ void RoboShield::init(void) {
   pinMode(LCD_RS_PIN, OUTPUT);
   pinMode(LCD_EN_PIN, OUTPUT);
   
-  // initialize the LCD
+  lcdInit();
+}
+
+void RoboShield::lcdInit(void) {
   // NOTE: Using delay() here doesn't work for some reason, so we use delayMicroseconds instead
   delayMicroseconds(15000);
   digitalWrite(LCD_EN_PIN, LOW);
@@ -149,19 +152,6 @@ void RoboShield::init(void) {
   lcdWrite(0x06, true);
 }
 
-void RoboShield::setDataBus(uint8_t data) {
-  // set the value of the data bus
-  uint8_t i;
-  for (i = 0; i < 8; ++i) {
-    digitalWrite(SHIFT_REG_DATA_PIN, (data & (1 << (7 - i))) ? HIGH : LOW);
-    delayMicroseconds(1);
-    digitalWrite(SHIFT_REG_CLK_PIN, HIGH);
-    delayMicroseconds(1);
-    digitalWrite(SHIFT_REG_CLK_PIN, LOW);
-    delayMicroseconds(1);
-  }
-}
-
 void RoboShield::lcdWrite(uint8_t data, bool is_control) {
   if (data == '\n') {
     _lcd_line = (_lcd_line + 1) % 2;
@@ -171,7 +161,7 @@ void RoboShield::lcdWrite(uint8_t data, bool is_control) {
     return;
   }
   digitalWrite(LCD_RS_PIN, is_control ? LOW : HIGH);
-  setDataBus(data);
+  SHIFT_OUT_BYTE(data);
   digitalWrite(LCD_EN_PIN, LOW);
   delayMicroseconds(1);
   digitalWrite(LCD_EN_PIN, HIGH);

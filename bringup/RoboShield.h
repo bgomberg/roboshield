@@ -29,7 +29,7 @@ public:
 
 private:
   void init(void);
-  void setDataBus(uint8_t data);
+  void lcdInit(void);
   void lcdWrite(uint8_t data, bool is_control);
   
   uint8_t _lcd_line;

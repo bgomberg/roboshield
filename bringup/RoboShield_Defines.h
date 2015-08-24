@@ -7,6 +7,38 @@
 /* Board-specific defines */
 #if defined(__AVR_ATmega2560__) // Arduino Mega
 #define MAX_USED_DIGITAL_PIN      21
+#define SHIFT_OUT_BYTE(data) \
+  do { \
+    cli(); \
+    const uint8_t oV = PORTB & ~(0x60); \
+    const uint8_t dV = oV | 0x40; \
+    const uint8_t cV = oV | 0x20; \
+    if (data & _BV(7)) PORTB = dV; \
+    PORTB = cV; \
+    PORTB = oV; \
+    if (data & _BV(6)) PORTB = dV; \
+    PORTB = cV; \
+    PORTB = oV; \
+    if (data & _BV(5)) PORTB = dV; \
+    PORTB = cV; \
+    PORTB = oV; \
+    if (data & _BV(4)) PORTB = dV; \
+    PORTB = cV; \
+    PORTB = oV; \
+    if (data & _BV(3)) PORTB = dV; \
+    PORTB = cV; \
+    PORTB = oV; \
+    if (data & _BV(2)) PORTB = dV; \
+    PORTB = cV; \
+    PORTB = oV; \
+    if (data & _BV(1)) PORTB = dV; \
+    PORTB = cV; \
+    PORTB = oV; \
+    if (data & _BV(0)) PORTB = dV; \
+    PORTB = cV; \
+    PORTB = oV; \
+    sei(); \
+  } while (0)
 
 #else
 #erorr "This board is not yet supported!"
