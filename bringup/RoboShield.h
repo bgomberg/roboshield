@@ -31,6 +31,7 @@ private:
   void init(void);
   void lcdInit(void);
   void lcdWrite(uint8_t data, bool is_control);
+  void motorInit(void);
   
   uint8_t _lcd_line;
 };

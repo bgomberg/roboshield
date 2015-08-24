@@ -169,3 +169,21 @@ void RoboShield::lcdWrite(uint8_t data, bool is_control) {
   digitalWrite(LCD_EN_PIN, LOW);
   delayMicroseconds(100);
 }
+
+void RoboShield::motorInit(void) {
+  // motor 0
+  TCCR2A |= _BV(WGM21) | _BV(WGM20) | _BV(COM2B1); //fast PWM, non-inverting
+  TCCR2B |= _BV(CS22) | _BV(CS21) | _BV(CS20); // clk/1024 prescalar
+
+  // motor 1
+  TCCR2A |= _BV(COM2A1); //fast PWM, non-inverting
+  
+  // motor 2
+  TCCR3A |= _BV(WGM30) | _BV(COM3A1); // fast PWM, 8-bit, non-inverting
+  TCCR3B |= _BV(CS32) | _BV(CS30) | _BV(WGM32); // clk/1024 prescalar
+
+  // motor 3
+  TCCR4A |= _BV(WGM40) | _BV(COM4A1); // fast PWM, 8-bit, non-inverting
+  TCCR4B |= _BV(CS42) | _BV(CS40) | _BV(WGM42); // clk/1024 prescalar
+}
+
