@@ -116,10 +116,10 @@ void RoboShield::init(void) {
   // configure any pins we don't want to be INPUT (the default)
   pinMode(BUTTON_PIN, INPUT_PULLUP);
   pinMode(LED_PIN, OUTPUT);
-  pinMode(PWN0_PIN, OUTPUT);
-  pinMode(PWN1_PIN, OUTPUT);
-  pinMode(PWN2_PIN, OUTPUT);
-  pinMode(PWN3_PIN, OUTPUT);
+  pinMode(PWM0_PIN, OUTPUT);
+  pinMode(PWM1_PIN, OUTPUT);
+  pinMode(PWM2_PIN, OUTPUT);
+  pinMode(PWM3_PIN, OUTPUT);
   pinMode(SHIFT_REG_CLK_PIN, OUTPUT);
   digitalWrite(SHIFT_REG_CLK_PIN, LOW);
   pinMode(SHIFT_REG_DATA_PIN, OUTPUT);
