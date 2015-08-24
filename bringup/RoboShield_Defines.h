@@ -64,12 +64,12 @@
 #define DIGITAL_0_PIN             2
 #define DIGITAL_1_PIN             3
 #define LCD_RS_PIN                4
-#define PWN2_PIN                  5
-#define PWN3_PIN                  6
+#define PWM2_PIN                  5
+#define PWM3_PIN                  6
 #define LCD_EN_PIN                7
 #define MOTOR_LATCH_EN_PIN        8
-#define PWN0_PIN                  9
-#define PWN1_PIN                  10
+#define PWM0_PIN                  9
+#define PWM1_PIN                  10
 #define SHIFT_REG_CLK_PIN         11
 #define SHIFT_REG_DATA_PIN        12
 #define SERVO_LATCH_EN_PIN        13
