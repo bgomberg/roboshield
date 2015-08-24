@@ -61,6 +61,28 @@ float RoboShield::batteryVoltage(void) {
   return (float)(analogRead(BATTERY_VOLTAGE_PIN) * MAX_BATTERY_VOLTAGE / 1024.0);
 }
 
+static uint8_t motor_value = 0x55;
+void RoboShield::setMotor(uint8_t num, int8_t speed) {
+  SHIFT_OUT_BYTE(motor_value);
+  digitalWrite(MOTOR_LATCH_EN_PIN, HIGH);
+  digitalWrite(MOTOR_LATCH_EN_PIN, LOW);
+  
+  switch (num) {
+    case 0:
+      OCR2B = speed;
+      break;
+    case 1:
+      OCR2A = speed;
+      break;
+    case 2:
+      OCR3A = speed;
+      break;
+    case 3:
+      OCR4A = speed;
+      break;
+  }
+}
+
 static uint16_t servo_value = 0;
 void RoboShield::setServo(uint8_t num, uint8_t pos) {
   if (!_servo_init) {
@@ -117,6 +139,7 @@ void RoboShield::init(void) {
   // initialize class variables
   _lcd_line = 0;
   _servo_init = false;
+  _motor_init = false;
 
   // configure any pins we don't want to be INPUT (the default)
   pinMode(BUTTON_PIN, INPUT_PULLUP);
@@ -136,6 +159,7 @@ void RoboShield::init(void) {
   digitalWrite(LCD_EN_PIN, LOW);
   
   lcdInit();
+  motorInit();
 }
 
 void RoboShield::lcdInit(void) {
@@ -189,6 +213,8 @@ void RoboShield::motorInit(void) {
   // motor 3
   TCCR4A |= _BV(WGM40) | _BV(COM4A1); // fast PWM, 8-bit, non-inverting
   TCCR4B |= _BV(CS42) | _BV(CS40) | _BV(WGM42); // clk/1024 prescalar
+
+  _motor_init = true;
 }
 
 

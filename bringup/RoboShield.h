@@ -25,6 +25,9 @@ public:
 
   // servo methods
   void setServo(uint8_t num, uint8_t pos);
+
+  // motor methods
+  void setMotor(uint8_t num, int8_t speed);
   
   // LCD methods
   void lcdSetCursor(uint8_t col, uint8_t row);
@@ -43,6 +46,7 @@ private:
   // class variables
   uint8_t _lcd_line;
   bool _servo_init;
+  bool _motor_init;
 };
 
 #endif
