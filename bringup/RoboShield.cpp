@@ -2,6 +2,8 @@
 #include "RoboShield_Defines.h"
 #include <Arduino.h>
 
+static RoboShield *s_active_object = NULL;
+
 
 // Public methods
 ////////////////////////////////////////////////////////////////////////////////
@@ -12,10 +14,6 @@ bool RoboShield::buttonPressed(void) {
 
 void RoboShield::setLED(bool on) {
   digitalWrite(LED_PIN, on);
-}
-
-float RoboShield::batteryVoltage(void) {
-  return (float)(analogRead(BATTERY_VOLTAGE_PIN) * MAX_BATTERY_VOLTAGE / 1024.0);
 }
 
 void RoboShield::setPinMode(uint8_t pin, uint8_t mode) {
@@ -59,10 +57,17 @@ int RoboShield::getAnalog(uint8_t pin) {
   return analogRead(pin);
 }
 
-void RoboShield::setServos(uint8_t data) {
-  SHIFT_OUT_BYTE(data);
-  digitalWrite(SERVO_LATCH_EN_PIN, HIGH);
-  digitalWrite(SERVO_LATCH_EN_PIN, LOW);
+float RoboShield::batteryVoltage(void) {
+  return (float)(analogRead(BATTERY_VOLTAGE_PIN) * MAX_BATTERY_VOLTAGE / 1024.0);
+}
+
+static uint16_t servo_value = 0;
+void RoboShield::setServo(uint8_t num, uint8_t pos) {
+  if (!_servo_init) {
+    INIT_TIMER();
+    _servo_init = true;
+  }
+  servo_value = (uint16_t)pos * 10;
 }
 
 void RoboShield::lcdSetCursor(uint8_t col, uint8_t row) {
@@ -71,11 +76,6 @@ void RoboShield::lcdSetCursor(uint8_t col, uint8_t row) {
   }
   const uint8_t addr = 0x80 + row * 0x40 + col;
   lcdWrite(addr, true);
-}
-
-size_t RoboShield::write(uint8_t character) {
-  lcdWrite(character, false);
-  return 1;
 }
 
 void RoboShield::lcdClear(void) {
@@ -98,20 +98,25 @@ void RoboShield::lcdPrintf(const char *format, ...) {
   va_end(ap);
 }
 
+size_t RoboShield::write(uint8_t character) {
+  lcdWrite(character, false);
+  return 1;
+}
+
 
 // Private methods
 ////////////////////////////////////////////////////////////////////////////////
 
 void RoboShield::init(void) {
-  // only run this once
-  static bool initialized = false;
-  if (initialized) {
+  if (s_active_object) {
+    // we've already run this
     return;
   }
-  initialized = true;
+  s_active_object = this;
   
   // initialize class variables
   _lcd_line = 0;
+  _servo_init = false;
 
   // configure any pins we don't want to be INPUT (the default)
   pinMode(BUTTON_PIN, INPUT_PULLUP);
@@ -126,7 +131,9 @@ void RoboShield::init(void) {
   pinMode(SERVO_LATCH_EN_PIN, OUTPUT);
   pinMode(MOTOR_LATCH_EN_PIN, OUTPUT);
   pinMode(LCD_RS_PIN, OUTPUT);
+  digitalWrite(LCD_RS_PIN, LOW);
   pinMode(LCD_EN_PIN, OUTPUT);
+  digitalWrite(LCD_EN_PIN, LOW);
   
   lcdInit();
 }
@@ -134,8 +141,6 @@ void RoboShield::init(void) {
 void RoboShield::lcdInit(void) {
   // NOTE: Using delay() here doesn't work for some reason, so we use delayMicroseconds instead
   delayMicroseconds(15000);
-  digitalWrite(LCD_EN_PIN, LOW);
-  digitalWrite(LCD_RS_PIN, LOW);
   // send function set command sequence
   lcdWrite(0x38, true);
   delayMicroseconds(4500);
@@ -160,12 +165,37 @@ void RoboShield::lcdWrite(uint8_t data, bool is_control) {
   } else if (data == '\r') {
     return;
   }
+  cli();
   digitalWrite(LCD_RS_PIN, is_control ? LOW : HIGH);
   SHIFT_OUT_BYTE(data);
-  digitalWrite(LCD_EN_PIN, LOW);
-  delayMicroseconds(1);
   digitalWrite(LCD_EN_PIN, HIGH);
-  delayMicroseconds(1);
   digitalWrite(LCD_EN_PIN, LOW);
+  sei();
   delayMicroseconds(100);
+}
+
+
+// ISRs
+////////////////////////////////////////////////////////////////////////////////
+
+ISR(TIMER_ISR) {
+  cli();
+  static volatile uint8_t stage = 0;
+  if (stage == 0) {
+    SHIFT_OUT_BYTE(0x00);
+    digitalWrite(SERVO_LATCH_EN_PIN, HIGH);
+    digitalWrite(SERVO_LATCH_EN_PIN, LOW);
+    OCR1A = 40000;
+  } else {
+    SHIFT_OUT_BYTE(0xFF);
+    digitalWrite(SERVO_LATCH_EN_PIN, HIGH);
+    digitalWrite(SERVO_LATCH_EN_PIN, LOW);
+    OCR1A = servo_value + 1000;
+    TCNT1 = 0;
+  }
+  stage++;
+  if (stage > 1) {
+    stage = 0;
+  }
+  sei();
 }

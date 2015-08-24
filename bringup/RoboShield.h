@@ -7,20 +7,26 @@
 
 class RoboShield : public Print {
 public:
+  // constructor
   RoboShield() { init(); }
   
+  // general methods
   bool buttonPressed(void);
   void setLED(bool on);
-  float batteryVoltage(void);
   
+  // digital pin methods
   void setPinMode(uint8_t pin, uint8_t mode);
   bool readPin(uint8_t pin);
   void setPin(uint8_t pin, bool set_high);
-  int getAnalog(uint8_t pin);
-
-  void setServos(uint8_t data);
   
-  // LCD functions
+  // analog input methods
+  int getAnalog(uint8_t pin);
+  float batteryVoltage(void);
+
+  // servo methods
+  void setServo(uint8_t num, uint8_t pos);
+  
+  // LCD methods
   void lcdSetCursor(uint8_t col, uint8_t row);
   void lcdClear(void);
   void lcdPrintf(const char *format, ...);
@@ -28,11 +34,14 @@ public:
   using Print::write;
 
 private:
+  // private methods
   void init(void);
   void lcdInit(void);
   void lcdWrite(uint8_t data, bool is_control);
   
+  // class variables
   uint8_t _lcd_line;
+  bool _servo_init;
 };
 
 #endif

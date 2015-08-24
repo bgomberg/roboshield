@@ -4,12 +4,30 @@
 #include <inttypes.h>
 
 
-/* Board-specific defines */
-#if defined(__AVR_ATmega2560__) // Arduino Mega
+#ifndef __AVR_ATmega2560__
+#error "This board is not yet supported for the RoboShield!"
+#endif
+
+
+/* General */
+#define MAX_BATTERY_VOLTAGE       15.0
 #define MAX_USED_DIGITAL_PIN      21
+#define TIMER_ISR                 TIMER1_COMPA_vect
+
+
+/* Macros */
+#define INIT_TIMER() \
+  do { pinMode(51, OUTPUT); \
+    cli(); \
+    TCCR1A = 0; \
+    TCCR1B = 0x0A; \
+    TCNT1 = 0; \
+    OCR1A = 0; \
+    TIMSK1 = 0x02; \
+    sei(); \
+  } while (0)
 #define SHIFT_OUT_BYTE(data) \
   do { \
-    cli(); \
     const uint8_t oV = PORTB & ~(0x60); \
     const uint8_t dV = oV | 0x40; \
     const uint8_t cV = oV | 0x20; \
@@ -37,16 +55,7 @@
     if (data & _BV(0)) PORTB = dV; \
     PORTB = cV; \
     PORTB = oV; \
-    sei(); \
   } while (0)
-
-#else
-#erorr "This board is not yet supported!"
-#endif
-
-
-/* General */
-#define MAX_BATTERY_VOLTAGE       15.0
 
 
 /* Digital pins */
