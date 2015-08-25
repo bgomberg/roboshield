@@ -63,16 +63,15 @@ float RoboShield::batteryVoltage(void) {
 
 static uint8_t motor_value = 0x55;
 void RoboShield::setMotor(uint8_t num, uint16_t speed) {
- if (!_motor_init) {
+  if (!_motor_init) {
     motorInit();
     _motor_init = true;
   }
 
-  motor_value = 0xAA;
   SHIFT_OUT_BYTE(motor_value);
   digitalWrite(MOTOR_LATCH_EN_PIN, HIGH);
   digitalWrite(MOTOR_LATCH_EN_PIN, LOW);
-  
+
   switch (num) {
     case 0:
       OCR2B = speed;
@@ -118,8 +117,8 @@ void RoboShield::lcdPrintf(const char *format, ...) {
   va_list ap;
   va_start(ap, format);
   vsnprintf(buf, sizeof(buf), format, ap);
-  for(char *p = &buf[0]; *p; p++) { // emulate cooked mode for newlines
-    if(*p == '\n')
+  for (char *p = &buf[0]; *p; p++) { // emulate cooked mode for newlines
+    if (*p == '\n')
       write('\r');
     write(*p);
   }
@@ -141,7 +140,7 @@ void RoboShield::init(void) {
     return;
   }
   s_active_object = this;
-  
+
   // initialize class variables
   _lcd_line = 0;
   _servo_init = false;
@@ -163,7 +162,7 @@ void RoboShield::init(void) {
   digitalWrite(LCD_RS_PIN, LOW);
   pinMode(LCD_EN_PIN, OUTPUT);
   digitalWrite(LCD_EN_PIN, LOW);
-  
+
   lcdInit();
 }
 
@@ -210,17 +209,18 @@ void RoboShield::motorInit(void) {
 
   // motor 1
   TCCR2A |= _BV(COM2A1); //fast PWM, non-inverting
-  
+
   // motor 2
+  TCCR3A = 0;
+  TCCR3B = 0;
   TCCR3A |= _BV(WGM30) | _BV(COM3A1); // fast PWM, 8-bit, non-inverting
   TCCR3B |= _BV(CS32) | _BV(CS30) | _BV(WGM32); // clk/1024 prescalar
 
   // motor 3
+  TCCR4A = 0;
+  TCCR4B = 0;
   TCCR4A |= _BV(WGM40) | _BV(COM4A1); // fast PWM, 8-bit, non-inverting
   TCCR4B |= _BV(CS42) | _BV(CS40) | _BV(WGM42); // clk/1024 prescalar
-
-  OCR3A = 100;
-  OCR4A = 100;
 }
 
 
@@ -254,12 +254,12 @@ ISR(TIMER_ISR) {
 
 void RoboShield::debuggingMode(void) {
   uint8_t selector = 0;
-  while(1) {
+  while (1) {
     lcdClear();
-    lcdSetCursor(0,1);
+    lcdSetCursor(0, 1);
     lcdPrintf("hold to select");
-    lcdSetCursor(0,0);
-    switch(selector) {
+    lcdSetCursor(0, 0);
+    switch (selector) {
       case 0:
         lcdPrintf("Digital 1/5");
         break;
@@ -280,8 +280,9 @@ void RoboShield::debuggingMode(void) {
     if (buttonPressed()) {
       uint32_t start_time = millis();
       uint8_t hold = 0;
-      
-      while(buttonPressed()) {
+
+      // check if the button is held down
+      while (buttonPressed()) {
         if ((millis() - start_time) > 1000) {
           hold = 1;
           break;
@@ -289,24 +290,82 @@ void RoboShield::debuggingMode(void) {
       }
 
       if (hold == 1) {
-       lcdClear();
-       lcdPrintf("hold");
-       switch(selector) {
-        case 4:
-          lcdPrintf("%f", batteryVoltage());
-       }
-        
-      } else {
+        motor_value = 0x55;
+        lcdClear();
+
+        // loop while the button is held down
+        while (buttonPressed()) {}
+        delayMicroseconds(5000);
+
+        uint8_t mcounter=0;
+        while (!buttonPressed()) {  // loop until button is pressed
+          lcdClear();
+          switch (selector) {
+            case 0:
+              for (uint8_t i = 0; i < 9; i++) {
+                lcdPrintf("%d ", readPin(i));
+              }
+              break;
+            case 1:
+              for (uint8_t i = 0; i < 4; i++) {
+                lcdPrintf("%3d ", getAnalog(i));
+              }
+
+              lcdSetCursor(0, 1);
+
+              for (uint8_t i = 4; i < 8; i++) {
+                lcdPrintf("%3d ", getAnalog(i));
+              }
+              break;
+            case 2:
+              lcdPrintf("Servo test");
+              break;
+            case 3:
+              lcdPrintf("Motor test");
+              setMotor(0, 127);
+              setMotor(1, 127);
+              setMotor(2, 127);
+              setMotor(3, 127);
+
+              mcounter++;
+              if (mcounter > 20) {
+                mcounter = 0;
+                motor_value ^= 0xFF;
+              }
+              break;
+            case 4:
+              lcdPrintf("%f", batteryVoltage());
+              break;
+          }
+
+          delay(100);
+        }
+        delayMicroseconds(5000);
+
+        // turn off all motors
+        motor_value = 0;
+        SHIFT_OUT_BYTE(motor_value);
+        digitalWrite(MOTOR_LATCH_EN_PIN, HIGH);
+        digitalWrite(MOTOR_LATCH_EN_PIN, LOW);
+        setMotor(0, 0);
+        setMotor(1, 0);
+        setMotor(2, 0);
+        setMotor(3, 0);
+
+        // loop until button is released
+        while (buttonPressed()) {}
+        delayMicroseconds(5000);
+      } else {  // no hold detected, so go to next menu option
         selector++;
         selector %= 5;
+
+        // loop while button is pressed
+        while (buttonPressed()) {}
+        delayMicroseconds(5000);
       }
-      
-      while(buttonPressed()) {}
-      delayMicroseconds(5000);
     }
 
-    delay(40);
-    
+    delay(50);
   }
 }
 
