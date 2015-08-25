@@ -61,31 +61,41 @@ float RoboShield::batteryVoltage(void) {
   return (float)(analogRead(BATTERY_VOLTAGE_PIN) * MAX_BATTERY_VOLTAGE / 1024.0);
 }
 
-static uint8_t motor_value = 0x55;
-void RoboShield::setMotor(uint8_t num, uint16_t speed) {
+static uint8_t motor_value = 0;
+void RoboShield::setMotor(uint8_t num, int8_t speed) {
   if (!_motor_init) {
     motorInit();
     _motor_init = true;
   }
 
-  SHIFT_OUT_BYTE(motor_value);
-  digitalWrite(MOTOR_LATCH_EN_PIN, HIGH);
-  digitalWrite(MOTOR_LATCH_EN_PIN, LOW);
+  motor_value &= ~(0x03 << (2 * num)); // clear the direction bits for the given motor
+
+  // speed should be between -100 and +100
+  if (speed > 0) {
+    motor_value |= (0x01 << (2 * num));
+  } else if (speed < 0) {
+    speed = -speed;
+    motor_value |= (0x02 << (2 * num));
+  }
 
   switch (num) {
     case 0:
-      OCR2B = speed;
+      OCR2B = 255 * speed / 100;
       break;
     case 1:
-      OCR2A = speed;
+      OCR2A = 255 * speed / 100;
       break;
     case 2:
-      OCR3A = speed;
+      OCR3A = 255 * speed / 100;
       break;
     case 3:
-      OCR4A = speed;
+      OCR4A = 255 * speed / 100;
       break;
   }
+
+  SHIFT_OUT_BYTE(motor_value);
+  digitalWrite(MOTOR_LATCH_EN_PIN, HIGH);
+  digitalWrite(MOTOR_LATCH_EN_PIN, LOW);
 }
 
 static uint16_t servo_value = 0;
@@ -297,13 +307,13 @@ void RoboShield::debuggingMode(void) {
         while (buttonPressed()) {}
         delayMicroseconds(5000);
 
-        uint8_t mcounter=0;
+        uint8_t mcounter = 0;
         while (!buttonPressed()) {  // loop until button is pressed
           lcdClear();
           switch (selector) {
             case 0:
               for (uint8_t i = 0; i < 9; i++) {
-                lcdPrintf("%d ", readPin(i));
+                lcdPrintf("%d", readPin(i));
               }
               break;
             case 1:
@@ -322,19 +332,18 @@ void RoboShield::debuggingMode(void) {
               break;
             case 3:
               lcdPrintf("Motor test");
-              setMotor(0, 127);
-              setMotor(1, 127);
-              setMotor(2, 127);
-              setMotor(3, 127);
+              setMotor(0, -2 * mcounter);
+              setMotor(1, -2 * mcounter);
+              setMotor(2, 2 * mcounter);
+              setMotor(3, 2 * mcounter);
 
               mcounter++;
-              if (mcounter > 20) {
+              if (mcounter > 50) {
                 mcounter = 0;
-                motor_value ^= 0xFF;
               }
               break;
             case 4:
-              lcdPrintf("%f", batteryVoltage());
+              lcdPrintf("%e", batteryVoltage());
               break;
           }
 
@@ -343,10 +352,6 @@ void RoboShield::debuggingMode(void) {
         delayMicroseconds(5000);
 
         // turn off all motors
-        motor_value = 0;
-        SHIFT_OUT_BYTE(motor_value);
-        digitalWrite(MOTOR_LATCH_EN_PIN, HIGH);
-        digitalWrite(MOTOR_LATCH_EN_PIN, LOW);
         setMotor(0, 0);
         setMotor(1, 0);
         setMotor(2, 0);
