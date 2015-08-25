@@ -62,7 +62,13 @@ float RoboShield::batteryVoltage(void) {
 }
 
 static uint8_t motor_value = 0x55;
-void RoboShield::setMotor(uint8_t num, int8_t speed) {
+void RoboShield::setMotor(uint8_t num, uint16_t speed) {
+ if (!_motor_init) {
+    motorInit();
+    _motor_init = true;
+  }
+
+  motor_value = 0xAA;
   SHIFT_OUT_BYTE(motor_value);
   digitalWrite(MOTOR_LATCH_EN_PIN, HIGH);
   digitalWrite(MOTOR_LATCH_EN_PIN, LOW);
@@ -159,7 +165,6 @@ void RoboShield::init(void) {
   digitalWrite(LCD_EN_PIN, LOW);
   
   lcdInit();
-  motorInit();
 }
 
 void RoboShield::lcdInit(void) {
@@ -214,7 +219,8 @@ void RoboShield::motorInit(void) {
   TCCR4A |= _BV(WGM40) | _BV(COM4A1); // fast PWM, 8-bit, non-inverting
   TCCR4B |= _BV(CS42) | _BV(CS40) | _BV(WGM42); // clk/1024 prescalar
 
-  _motor_init = true;
+  OCR3A = 100;
+  OCR4A = 100;
 }
 
 
@@ -242,3 +248,65 @@ ISR(TIMER_ISR) {
   }
   sei();
 }
+
+// Debugging Mode
+////////////////////////////////////////////////////////////////////////////////
+
+void RoboShield::debuggingMode(void) {
+  uint8_t selector = 0;
+  while(1) {
+    lcdClear();
+    lcdSetCursor(0,1);
+    lcdPrintf("hold to select");
+    lcdSetCursor(0,0);
+    switch(selector) {
+      case 0:
+        lcdPrintf("Digital 1/5");
+        break;
+      case 1:
+        lcdPrintf("Analog 2/5");
+        break;
+      case 2:
+        lcdPrintf("Servo 3/5");
+        break;
+      case 3:
+        lcdPrintf("Motor 4/5");
+        break;
+      case 4:
+        lcdPrintf("Battery 5/5");
+        break;
+    }
+
+    if (buttonPressed()) {
+      uint32_t start_time = millis();
+      uint8_t hold = 0;
+      
+      while(buttonPressed()) {
+        if ((millis() - start_time) > 1000) {
+          hold = 1;
+          break;
+        }
+      }
+
+      if (hold == 1) {
+       lcdClear();
+       lcdPrintf("hold");
+       switch(selector) {
+        case 4:
+          lcdPrintf("%f", batteryVoltage());
+       }
+        
+      } else {
+        selector++;
+        selector %= 5;
+      }
+      
+      while(buttonPressed()) {}
+      delayMicroseconds(5000);
+    }
+
+    delay(40);
+    
+  }
+}
+

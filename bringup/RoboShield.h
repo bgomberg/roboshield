@@ -27,7 +27,9 @@ public:
   void setServo(uint8_t num, uint8_t pos);
 
   // motor methods
-  void setMotor(uint8_t num, int8_t speed);
+  void setMotor(uint8_t num, uint16_t speed);
+
+  void debuggingMode(void);
   
   // LCD methods
   void lcdSetCursor(uint8_t col, uint8_t row);
