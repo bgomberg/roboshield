@@ -28,6 +28,8 @@ public:
 
   // motor methods
   void setMotor(uint8_t num, int8_t speed);
+  uint32_t readEncoder(uint8_t num);
+  void resetEncoder(uint8_t num);
 
   void debuggingMode(void);
   
@@ -49,6 +51,7 @@ private:
   uint8_t _lcd_line;
   bool _servo_init;
   bool _motor_init;
+
 };
 
 #endif

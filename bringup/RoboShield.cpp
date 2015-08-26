@@ -140,6 +140,21 @@ size_t RoboShield::write(uint8_t character) {
   return 1;
 }
 
+volatile uint32_t encoder0=0;
+volatile uint32_t encoder1=0;
+uint32_t RoboShield::readEncoder(uint8_t num) {
+  if (num)
+    return encoder1;
+  else
+    return encoder0;
+}
+
+void RoboShield::resetEncoder(uint8_t num) {
+  if (num)
+    encoder1 = 0;
+  else
+    encoder0 = 0;
+}
 
 // Private methods
 ////////////////////////////////////////////////////////////////////////////////
@@ -231,6 +246,12 @@ void RoboShield::motorInit(void) {
   TCCR4B = 0;
   TCCR4A |= _BV(WGM40) | _BV(COM4A1); // fast PWM, 8-bit, non-inverting
   TCCR4B |= _BV(CS42) | _BV(CS40) | _BV(WGM42); // clk/1024 prescalar
+
+  //enable encoder interrupts
+  EICRB = 0;
+  EICRB |= _BV(ISC41) | _BV(ISC51); // set INT4 and INT5 to trigger on falling edges
+  EIMSK = 0;
+  EIMSK |= _BV(INT4) | _BV(INT5); // enable INT4 and INT5;
 }
 
 
@@ -257,6 +278,16 @@ ISR(TIMER_ISR) {
     stage = 0;
   }
   sei();
+}
+
+// encoder 0
+ISR(INT4_vect) {
+  encoder0++;
+}
+
+//encoder 1
+ISR(INT5_vect) {
+ encoder1++;
 }
 
 // Debugging Mode
