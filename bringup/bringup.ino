@@ -10,8 +10,9 @@ void loop() {
   roboShield.lcdClear();
   //roboShield.lcdPrintf("HELLO\nTIME: %lu", millis());
   roboShield.setMotor(0,0);
-  roboShield.lcdPrintf("%d", roboShield.readEncoder(0));
+  //roboShield.lcdPrintf("%d %d", roboShield.readEncoder(0), analogRead(14));
   
-  //roboShield.debuggingMode();
+  
+  roboShield.debuggingMode();
   delay(50);
 }

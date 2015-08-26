@@ -135,6 +135,33 @@ void RoboShield::lcdPrintf(const char *format, ...) {
   va_end(ap);
 }
 
+void RoboShield::printFloat( float val, uint8_t precision){
+ // prints val with number of decimal places determine by precision
+ // precision is a number from 0 to 6 indicating the desired decimial places
+ // example: printDouble( 3.1415, 2); // prints 3.14 (two decimal places)
+
+ lcdPrintf("%d", int(val));  //prints the int part
+ if( precision > 0) {
+   lcdPrintf("."); // print the decimal point
+   unsigned long frac;
+   unsigned long mult = 1;
+   uint8_t padding = precision -1;
+   while(precision--)
+      mult *=10;
+      
+   if(val >= 0)
+     frac = (val - int(val)) * mult;
+   else
+     frac = (int(val)- val ) * mult;
+   unsigned long frac1 = frac;
+   while( frac1 /= 10 )
+     padding--;
+   while(  padding--)
+     lcdPrintf("0");
+   lcdPrintf("%d", frac);
+ }
+}
+
 size_t RoboShield::write(uint8_t character) {
   lcdWrite(character, false);
   return 1;
@@ -343,7 +370,7 @@ void RoboShield::debuggingMode(void) {
           lcdClear();
           switch (selector) {
             case 0:
-              for (uint8_t i = 0; i < 9; i++) {
+              for (uint8_t i = 0; i < 10; i++) {
                 lcdPrintf("%d", readPin(i));
               }
               break;
@@ -374,7 +401,7 @@ void RoboShield::debuggingMode(void) {
               }
               break;
             case 4:
-              lcdPrintf("%e", batteryVoltage());
+              printFloat(batteryVoltage(), 2);
               break;
           }
 
