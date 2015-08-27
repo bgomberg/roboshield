@@ -135,31 +135,31 @@ void RoboShield::lcdPrintf(const char *format, ...) {
   va_end(ap);
 }
 
-void RoboShield::printFloat( float val, uint8_t precision){
- // prints val with number of decimal places determine by precision
- // precision is a number from 0 to 6 indicating the desired decimial places
- // example: printDouble( 3.1415, 2); // prints 3.14 (two decimal places)
+void RoboShield::printFloat( float val, uint8_t precision) {
+  // prints val with number of decimal places determine by precision
+  // precision is a number from 0 to 6 indicating the desired decimial places
+  // example: printDouble( 3.1415, 2); // prints 3.14 (two decimal places)
 
- lcdPrintf("%d", int(val));  //prints the int part
- if( precision > 0) {
-   lcdPrintf("."); // print the decimal point
-   unsigned long frac;
-   unsigned long mult = 1;
-   uint8_t padding = precision -1;
-   while(precision--)
-      mult *=10;
-      
-   if(val >= 0)
-     frac = (val - int(val)) * mult;
-   else
-     frac = (int(val)- val ) * mult;
-   unsigned long frac1 = frac;
-   while( frac1 /= 10 )
-     padding--;
-   while(  padding--)
-     lcdPrintf("0");
-   lcdPrintf("%d", frac);
- }
+  lcdPrintf("%d", int(val));  //prints the int part
+  if ( precision > 0) {
+    lcdPrintf("."); // print the decimal point
+    unsigned long frac;
+    unsigned long mult = 1;
+    uint8_t padding = precision - 1;
+    while (precision--)
+      mult *= 10;
+
+    if (val >= 0)
+      frac = (val - int(val)) * mult;
+    else
+      frac = (int(val) - val ) * mult;
+    unsigned long frac1 = frac;
+    while ( frac1 /= 10 )
+      padding--;
+    while (  padding--)
+      lcdPrintf("0");
+    lcdPrintf("%d", frac);
+  }
 }
 
 size_t RoboShield::write(uint8_t character) {
@@ -167,8 +167,8 @@ size_t RoboShield::write(uint8_t character) {
   return 1;
 }
 
-volatile uint32_t encoder0=0;
-volatile uint32_t encoder1=0;
+volatile uint32_t encoder0 = 0;
+volatile uint32_t encoder1 = 0;
 uint32_t RoboShield::readEncoder(uint8_t num) {
   if (num)
     return encoder1;
@@ -308,13 +308,13 @@ ISR(TIMER_ISR) {
 }
 
 // encoder 0
-ISR(INT4_vect) {
+ISR(INT4_vect, ISR_NOBLOCK) {
   encoder0++;
 }
 
 //encoder 1
-ISR(INT5_vect) {
- encoder1++;
+ISR(INT5_vect, ISR_NOBLOCK) {
+  encoder1++;
 }
 
 // Debugging Mode
@@ -351,14 +351,13 @@ void RoboShield::debuggingMode(void) {
 
       // check if the button is held down
       while (buttonPressed()) {
-        if ((millis() - start_time) > 1000) {
+        if ((millis() - start_time) > 800) {
           hold = 1;
           break;
         }
       }
 
       if (hold == 1) {
-        motor_value = 0x55;
         lcdClear();
 
         // loop while the button is held down
@@ -366,6 +365,7 @@ void RoboShield::debuggingMode(void) {
         delayMicroseconds(5000);
 
         uint8_t mcounter = 0;
+        uint8_t analog_display = 0;
         while (!buttonPressed()) {  // loop until button is pressed
           lcdClear();
           switch (selector) {
@@ -375,15 +375,54 @@ void RoboShield::debuggingMode(void) {
               }
               break;
             case 1:
-              for (uint8_t i = 0; i < 4; i++) {
-                lcdPrintf("%3d ", getAnalog(i));
+              //while(buttonPressed()) {} // loop until button is released
+              //delayMicroseconds(5000);
+              hold = 0;
+              
+              while (hold == 0) {
+                lcdClear();
+                
+                if (analog_display == 0) { // display analog 0 through 7
+                  for (uint8_t i = 0; i < 4; i++) {
+                    lcdPrintf("%4d", getAnalog(i));
+                  }
+
+                  lcdSetCursor(0, 1);
+
+                  for (uint8_t i = 4; i < 8; i++) {
+                    lcdPrintf("%4d", getAnalog(i));
+                  }
+                } else { // display analog 8 through 14
+                  for (uint8_t i = 8; i < 12; i++) {
+                    lcdPrintf("%4d", getAnalog(i));
+                  }
+
+                  lcdSetCursor(0, 1);
+
+                  for (uint8_t i = 12; i < 14; i++) {
+                    lcdPrintf("%4d", getAnalog(i));
+                  }
+                }
+
+                if (buttonPressed()) {           // check if the button is held down
+                  delayMicroseconds(5000);
+                  start_time = millis();
+                  while (buttonPressed()) {
+                    if ((millis() - start_time) > 800) {
+                      hold = 1;
+                      break;
+                    }
+                  }
+
+                  if (hold == 0)
+                    analog_display ^= 1;
+                }
+
+                delay(100);
               }
 
-              lcdSetCursor(0, 1);
+              lcdClear();
 
-              for (uint8_t i = 4; i < 8; i++) {
-                lcdPrintf("%3d ", getAnalog(i));
-              }
               break;
             case 2:
               lcdPrintf("Servo test");
