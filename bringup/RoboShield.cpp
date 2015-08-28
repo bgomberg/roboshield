@@ -359,6 +359,8 @@ void RoboShield::debuggingMode(void) {
 
       if (hold == 1) {
         lcdClear();
+        resetEncoder(0);
+        resetEncoder(1);
 
         // loop while the button is held down
         while (buttonPressed()) {}
@@ -428,7 +430,7 @@ void RoboShield::debuggingMode(void) {
               lcdPrintf("Servo test");
               break;
             case 3:
-              lcdPrintf("Motor test");
+              lcdPrintf("Motor ");
               setMotor(0, -2 * mcounter);
               setMotor(1, -2 * mcounter);
               setMotor(2, 2 * mcounter);
@@ -438,9 +440,14 @@ void RoboShield::debuggingMode(void) {
               if (mcounter > 50) {
                 mcounter = 0;
               }
+
+              lcdPrintf("E0: %d", readEncoder(0));
+              lcdSetCursor(0,1);
+              lcdPrintf("test  E1: %d", readEncoder(1));
               break;
             case 4:
               printFloat(batteryVoltage(), 2);
+              lcdPrintf("V");
               break;
           }
 
