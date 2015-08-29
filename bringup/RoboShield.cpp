@@ -93,9 +93,11 @@ void RoboShield::setMotor(uint8_t num, int8_t speed) {
       break;
   }
 
+  cli();
   SHIFT_OUT_BYTE(motor_value);
   digitalWrite(MOTOR_LATCH_EN_PIN, HIGH);
   digitalWrite(MOTOR_LATCH_EN_PIN, LOW);
+  sei();
 }
 
 static volatile uint16_t servo_value[NUM_SERVOS];
@@ -440,6 +442,9 @@ void RoboShield::debuggingMode(void) {
               break;
             case 2:
               lcdPrintf("Servo test");
+              for(uint8_t i=0; i<8; i++) {
+                setServo(i,50);
+              }
               break;
             case 3:
               lcdPrintf("Motor ");
