@@ -24,7 +24,7 @@ public:
   float batteryVoltage(void);
 
   // servo methods
-  void setServo(uint8_t num, uint8_t pos);
+  void setServo(uint8_t num, int8_t pos);
 
   // motor methods
   void setMotor(uint8_t num, int8_t speed);

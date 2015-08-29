@@ -10,6 +10,7 @@
 
 
 /* General */
+#define NUM_SERVOS                8
 #define MAX_BATTERY_VOLTAGE       15.0
 #define MAX_USED_DIGITAL_PIN      21
 #define TIMER_ISR                 TIMER1_COMPA_vect
@@ -17,12 +18,12 @@
 
 /* Macros */
 #define INIT_TIMER() \
-  do { pinMode(51, OUTPUT); \
+  do { \
     cli(); \
     TCCR1A = 0; \
-    TCCR1B = 0x0A; \
+    TCCR1B = 0x02; \
     TCNT1 = 0; \
-    OCR1A = 0; \
+    OCR1A = 40000; \
     TIMSK1 = 0x02; \
     sei(); \
   } while (0)

@@ -98,13 +98,18 @@ void RoboShield::setMotor(uint8_t num, int8_t speed) {
   digitalWrite(MOTOR_LATCH_EN_PIN, LOW);
 }
 
-static uint16_t servo_value = 0;
-void RoboShield::setServo(uint8_t num, uint8_t pos) {
+static volatile uint16_t servo_value[NUM_SERVOS];
+static volatile uint8_t servo_enabled[NUM_SERVOS];
+void RoboShield::setServo(uint8_t num, int8_t pos) {
+  if (num >= NUM_SERVOS) {
+    return;
+  }
   if (!_servo_init) {
     INIT_TIMER();
     _servo_init = true;
   }
-  servo_value = (uint16_t)pos * 10;
+  servo_value[num] = (uint16_t)map((int16_t)pos, -100, 100, 0, 2000);
+  servo_enabled[num] = (1 << num);
 }
 
 void RoboShield::lcdSetCursor(uint8_t col, uint8_t row) {
@@ -285,26 +290,33 @@ void RoboShield::motorInit(void) {
 // ISRs
 ////////////////////////////////////////////////////////////////////////////////
 
-ISR(TIMER_ISR) {
-  cli();
-  static volatile uint8_t stage = 0;
-  if (stage == 0) {
-    SHIFT_OUT_BYTE(0x00);
-    digitalWrite(SERVO_LATCH_EN_PIN, HIGH);
-    digitalWrite(SERVO_LATCH_EN_PIN, LOW);
+ISR(TIMER1_COMPA_vect, ISR_BLOCK) {
+  static volatile uint8_t servo_num = 0;
+  uint8_t new_servo_data;
+  if (servo_num == NUM_SERVOS) {
+    // set all servos low
     OCR1A = 40000;
+    new_servo_data = 0;
+    servo_num = 0;
   } else {
-    SHIFT_OUT_BYTE(0xFF);
+    if (servo_num == 0) {
+      TCNT1 = 0;
+      OCR1A = 0;
+    }
+    // set the next servo high (and all other servos low)
+    OCR1A += servo_value[servo_num] + 2000;
+    new_servo_data = servo_enabled[servo_num];
+    servo_num++;
+  }
+  
+  // optimization: don't shift out new data if we're just setting it to the same thing
+  static volatile uint8_t current_servo_data = 0xFF;
+  if (new_servo_data != current_servo_data) {
+    current_servo_data = new_servo_data;
+    SHIFT_OUT_BYTE(new_servo_data);
     digitalWrite(SERVO_LATCH_EN_PIN, HIGH);
     digitalWrite(SERVO_LATCH_EN_PIN, LOW);
-    OCR1A = servo_value + 1000;
-    TCNT1 = 0;
   }
-  stage++;
-  if (stage > 1) {
-    stage = 0;
-  }
-  sei();
 }
 
 // encoder 0
