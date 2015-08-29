@@ -441,9 +441,9 @@ void RoboShield::debuggingMode(void) {
                 mcounter = 0;
               }
 
-              lcdPrintf("E0: %d", readEncoder(0));
+              lcdPrintf("E0:%lu", readEncoder(0));
               lcdSetCursor(0,1);
-              lcdPrintf("test  E1: %d", readEncoder(1));
+              lcdPrintf("test  E1:%lu", readEncoder(1));
               break;
             case 4:
               printFloat(batteryVoltage(), 2);
