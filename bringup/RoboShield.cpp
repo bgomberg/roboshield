@@ -95,8 +95,10 @@ void RoboShield::setMotor(uint8_t num, int8_t speed) {
 
   cli();
   SHIFT_OUT_BYTE(motor_value);
-  digitalWrite(MOTOR_LATCH_EN_PIN, HIGH);
-  digitalWrite(MOTOR_LATCH_EN_PIN, LOW);
+  //digitalWrite(MOTOR_LATCH_EN_PIN, HIGH);
+  //digitalWrite(MOTOR_LATCH_EN_PIN, LOW);
+  PORTH |= _BV(PH5);
+  PORTH &= ~_BV(PH5);
   sei();
 }
 
@@ -253,10 +255,18 @@ void RoboShield::lcdWrite(uint8_t data, bool is_control) {
     return;
   }
   cli();
-  digitalWrite(LCD_RS_PIN, is_control ? LOW : HIGH);
+  // set the LCD_RS pin
+  if (is_control == true) {
+    PORTG &= ~_BV(PG5);
+  } else {
+    PORTG |= _BV(PG5);
+  }
+  
   SHIFT_OUT_BYTE(data);
-  digitalWrite(LCD_EN_PIN, HIGH);
-  digitalWrite(LCD_EN_PIN, LOW);
+  
+  // toggle the LCD_E pin
+  PORTH |= _BV(PH4);
+  PORTH &= ~_BV(PH4);
   sei();
   delayMicroseconds(100);
 }
@@ -281,11 +291,14 @@ void RoboShield::motorInit(void) {
   TCCR4A |= _BV(WGM40) | _BV(COM4A1); // fast PWM, 8-bit, non-inverting
   TCCR4B |= _BV(CS42) | _BV(CS40) | _BV(WGM42); // clk/1024 prescalar
 
-  //enable encoder interrupts
+  // enable encoder interrupts
   EICRB = 0;
   EICRB |= _BV(ISC41) | _BV(ISC51); // set INT4 and INT5 to trigger on falling edges
   EIMSK = 0;
   EIMSK |= _BV(INT4) | _BV(INT5); // enable INT4 and INT5;
+
+  // enable pullups on INT4 and INT5
+  PORTE |= _BV(PE4) | _BV(PE5);
 }
 
 
@@ -310,7 +323,7 @@ ISR(TIMER1_COMPA_vect, ISR_BLOCK) {
     new_servo_data = servo_enabled[servo_num];
     servo_num++;
   }
-  
+
   // optimization: don't shift out new data if we're just setting it to the same thing
   static volatile uint8_t current_servo_data = 0xFF;
   if (new_servo_data != current_servo_data) {
@@ -394,10 +407,10 @@ void RoboShield::debuggingMode(void) {
               //while(buttonPressed()) {} // loop until button is released
               //delayMicroseconds(5000);
               hold = 0;
-              
+
               while (hold == 0) {
                 lcdClear();
-                
+
                 if (analog_display == 0) { // display analog 0 through 7
                   for (uint8_t i = 0; i < 4; i++) {
                     lcdPrintf("%4d", getAnalog(i));
@@ -442,9 +455,21 @@ void RoboShield::debuggingMode(void) {
               break;
             case 2:
               lcdPrintf("Servo test");
-              for(uint8_t i=0; i<8; i++) {
-                setServo(i,50);
+              if (mcounter < 25) {
+                for (uint8_t i = 0; i < 8; i++) {
+                  setServo(i, 50);
+                }
+              } else {
+                for (uint8_t i = 0; i < 8; i++) {
+                  setServo(i, 0);
+                }
               }
+
+              mcounter++;
+              if (mcounter > 50) {
+                mcounter = 0;
+              }
+
               break;
             case 3:
               lcdPrintf("Motor ");
@@ -459,7 +484,7 @@ void RoboShield::debuggingMode(void) {
               }
 
               lcdPrintf("E0:%lu", readEncoder(0));
-              lcdSetCursor(0,1);
+              lcdSetCursor(0, 1);
               lcdPrintf("test  E1:%lu", readEncoder(1));
               break;
             case 4:
