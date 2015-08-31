@@ -329,8 +329,8 @@ ISR(TIMER1_COMPA_vect, ISR_BLOCK) {
   if (new_servo_data != current_servo_data) {
     current_servo_data = new_servo_data;
     SHIFT_OUT_BYTE(new_servo_data);
-    digitalWrite(SERVO_LATCH_EN_PIN, HIGH);
-    digitalWrite(SERVO_LATCH_EN_PIN, LOW);
+    PORTB |= _BV(PB7);
+    PORTB &= ~_BV(PB7);
   }
 }
 
