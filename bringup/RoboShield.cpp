@@ -116,6 +116,113 @@ void RoboShield::setServo(uint8_t num, int8_t pos) {
   servo_enabled[num] = (1 << num);
 }
 
+volatile uint32_t encoder0 = 0;
+volatile uint32_t encoder1 = 0;
+uint32_t RoboShield::readEncoder(uint8_t num) {
+  if (num)
+    return encoder1;
+  else
+    return encoder0;
+}
+
+void RoboShield::resetEncoder(uint8_t num) {
+  if (num)
+    encoder1 = 0;
+  else
+    encoder0 = 0;
+}
+
+// Private methods
+////////////////////////////////////////////////////////////////////////////////
+
+void RoboShield::init(void) {
+  if (s_active_object) {
+    // we've already run this
+    return;
+  }
+  s_active_object = this;
+
+  // initialize class variables
+  _lcd_line = 0;
+  _servo_init = false;
+  _motor_init = false;
+
+  // configure any pins we don't want to be INPUT (the default)
+  pinMode(BUTTON_PIN, INPUT_PULLUP);
+  pinMode(LED_PIN, OUTPUT);
+  pinMode(PWM0_PIN, OUTPUT);
+  pinMode(PWM1_PIN, OUTPUT);
+  pinMode(PWM2_PIN, OUTPUT);
+  pinMode(PWM3_PIN, OUTPUT);
+  pinMode(SHIFT_REG_CLK_PIN, OUTPUT);
+  digitalWrite(SHIFT_REG_CLK_PIN, LOW);
+  pinMode(SHIFT_REG_DATA_PIN, OUTPUT);
+  pinMode(SERVO_LATCH_EN_PIN, OUTPUT);
+  pinMode(MOTOR_LATCH_EN_PIN, OUTPUT);
+  pinMode(LCD_RS_PIN, OUTPUT);
+  digitalWrite(LCD_RS_PIN, LOW);
+  pinMode(LCD_EN_PIN, OUTPUT);
+  digitalWrite(LCD_EN_PIN, LOW);
+
+  lcdInit();
+}
+
+void RoboShield::lcdInit(void) {
+  // // NOTE: Using delay() here doesn't work for some reason, so we use delayMicroseconds instead
+  delayMicroseconds(15000);
+  // we start in 8bit mode, try to set 4 bit mode
+  lcdWrite4Bits(0x03, true);
+  delayMicroseconds(4500); // wait min 4.1ms
+  // second try
+  lcdWrite4Bits(0x03, true);
+  delayMicroseconds(4500); // wait min 4.1ms
+  // third go!
+  lcdWrite4Bits(0x03, true);
+  delayMicroseconds(150);
+  // finally, set to 4-bit interface
+  lcdWrite4Bits(0x02, true);
+  // finally, set # lines, font size, etc.
+  lcdWrite(0x28, true);
+  // turn the display on with no cursor or blinking default
+  lcdWrite(0x0C, true);
+  // clear it off
+  lcdClear();
+  // set the entry mode
+  lcdWrite(0x06, true);
+}
+
+
+void RoboShield::lcdWrite4Bits(uint8_t data, bool is_control) {
+  cli();
+  // set the LCD_RS pin
+  if (is_control) {
+    PORTG &= ~_BV(PG5);
+  } else {
+    PORTG |= _BV(PG5);
+  }
+  
+  SHIFT_OUT_BYTE(data << 4);
+  
+  // toggle the LCD_E pin
+  PORTH |= _BV(PH4);
+  PORTH &= ~_BV(PH4);
+  sei();
+  delayMicroseconds(100);
+}
+
+void RoboShield::lcdWrite(uint8_t data, bool is_control) {
+  if (data == '\n') {
+    _lcd_line = (_lcd_line + 1) % 2;
+    lcdSetCursor(0, _lcd_line);
+    return;
+  } else if (data == '\r') {
+    return;
+  }
+  lcdWrite4Bits(data>>4, is_control);
+  lcdWrite4Bits(data, is_control);
+}
+
+
 void RoboShield::lcdSetCursor(uint8_t col, uint8_t row) {
   if (col >= 16 || row >= 2) {
     return;
@@ -174,101 +281,6 @@ void RoboShield::printFloat( float val, uint8_t precision) {
 size_t RoboShield::write(uint8_t character) {
   lcdWrite(character, false);
   return 1;
-}
-
-volatile uint32_t encoder0 = 0;
-volatile uint32_t encoder1 = 0;
-uint32_t RoboShield::readEncoder(uint8_t num) {
-  if (num)
-    return encoder1;
-  else
-    return encoder0;
-}
-
-void RoboShield::resetEncoder(uint8_t num) {
-  if (num)
-    encoder1 = 0;
-  else
-    encoder0 = 0;
-}
-
-// Private methods
-////////////////////////////////////////////////////////////////////////////////
-
-void RoboShield::init(void) {
-  if (s_active_object) {
-    // we've already run this
-    return;
-  }
-  s_active_object = this;
-
-  // initialize class variables
-  _lcd_line = 0;
-  _servo_init = false;
-  _motor_init = false;
-
-  // configure any pins we don't want to be INPUT (the default)
-  pinMode(BUTTON_PIN, INPUT_PULLUP);
-  pinMode(LED_PIN, OUTPUT);
-  pinMode(PWM0_PIN, OUTPUT);
-  pinMode(PWM1_PIN, OUTPUT);
-  pinMode(PWM2_PIN, OUTPUT);
-  pinMode(PWM3_PIN, OUTPUT);
-  pinMode(SHIFT_REG_CLK_PIN, OUTPUT);
-  digitalWrite(SHIFT_REG_CLK_PIN, LOW);
-  pinMode(SHIFT_REG_DATA_PIN, OUTPUT);
-  pinMode(SERVO_LATCH_EN_PIN, OUTPUT);
-  pinMode(MOTOR_LATCH_EN_PIN, OUTPUT);
-  pinMode(LCD_RS_PIN, OUTPUT);
-  digitalWrite(LCD_RS_PIN, LOW);
-  pinMode(LCD_EN_PIN, OUTPUT);
-  digitalWrite(LCD_EN_PIN, LOW);
-
-  lcdInit();
-}
-
-void RoboShield::lcdInit(void) {
-  // NOTE: Using delay() here doesn't work for some reason, so we use delayMicroseconds instead
-  delayMicroseconds(15000);
-  // send function set command sequence
-  lcdWrite(0x38, true);
-  delayMicroseconds(4500);
-  // second try
-  lcdWrite(0x38, true);
-  delayMicroseconds(150);
-  // set # lines, font size, etc
-  lcdWrite(0x38, true);
-  // turn display on with no cursor or blinking default
-  lcdWrite(0x0C, true);
-  // clear the display
-  lcdClear();
-  // set entry mode
-  lcdWrite(0x06, true);
-}
-
-void RoboShield::lcdWrite(uint8_t data, bool is_control) {
-  if (data == '\n') {
-    _lcd_line = (_lcd_line + 1) % 2;
-    lcdSetCursor(0, _lcd_line);
-    return;
-  } else if (data == '\r') {
-    return;
-  }
-  cli();
-  // set the LCD_RS pin
-  if (is_control == true) {
-    PORTG &= ~_BV(PG5);
-  } else {
-    PORTG |= _BV(PG5);
-  }
-  
-  SHIFT_OUT_BYTE(data);
-  
-  // toggle the LCD_E pin
-  PORTH |= _BV(PH4);
-  PORTH &= ~_BV(PH4);
-  sei();
-  delayMicroseconds(100);
 }
 
 void RoboShield::motorInit(void) {

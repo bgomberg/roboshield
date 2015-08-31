@@ -46,6 +46,7 @@ private:
   void init(void);
   void lcdInit(void);
   void lcdWrite(uint8_t data, bool is_control);
+  void lcdWrite4Bits(uint8_t value, bool is_control);
   void motorInit(void);
   
   // class variables
@@ -55,4 +56,4 @@ private:
 
 };
 
-#endif
+#endif // __ROBO_SHIELD_H__
