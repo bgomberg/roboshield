@@ -60,22 +60,22 @@
 
 
 /* Digital pins */
-#define CLK_S_PIN                 2
-#define DATA_S_PIN                3
-#define BUTTON_PIN                4
+#define CLK_S_PIN                 2  //PE4
+#define DATA_S_PIN                3  //PE5
+#define BUTTON_PIN                4  
 #define LCD_EN_PIN                5
 #define PWM2_PIN                  6
 #define PWM3_PIN                  7
 #define DIGITAL_0_PIN             8
 #define PWM0_PIN                  9
 #define PWM1_PIN                  10
-#define CLK_L_PIN                 11
-#define DATA_L_PIN                12
+#define CLK_L_PIN                 11  //PB5
+#define DATA_L_PIN                12  //PB6
 #define LED_PIN                   13
 #define DIGITAL_1_PIN             14
 #define DIGITAL_2_PIN             15
-#define CLK_M_PIN                 16
-#define DATA_M_PIN                17
+#define CLK_M_PIN                 16  //PH1
+#define DATA_M_PIN                17  //PH0
 #define DIGITAL_5_PIN             18
 #define DIGITAL_6_PIN             19
 #define DIGITAL_3_PIN             20

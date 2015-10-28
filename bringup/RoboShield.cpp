@@ -154,6 +154,7 @@ void RoboShield::init(void) {
   pinMode(PWM1_PIN, OUTPUT);
   pinMode(PWM2_PIN, OUTPUT);
   pinMode(PWM3_PIN, OUTPUT);
+  
   pinMode(CLK_S_PIN, OUTPUT);
   digitalWrite(CLK_S_PIN, LOW);
   pinMode(DATA_S_PIN, OUTPUT);
@@ -290,32 +291,32 @@ size_t RoboShield::write(uint8_t character) {
 
 void RoboShield::motorInit(void) {
   // motor 0
-  TCCR2A |= _BV(WGM21) | _BV(WGM20) | _BV(COM2B1); //fast PWM, non-inverting
-  TCCR2B |= _BV(CS22) | _BV(CS21) | _BV(CS20); // clk/1024 prescalar
+  //TCCR2A |= _BV(WGM21) | _BV(WGM20) | _BV(COM2B1); //fast PWM, non-inverting
+  //TCCR2B |= _BV(CS22) | _BV(CS21) | _BV(CS20); // clk/1024 prescalar
 
   // motor 1
-  TCCR2A |= _BV(COM2A1); //fast PWM, non-inverting
+  //TCCR2A |= _BV(COM2A1); //fast PWM, non-inverting
 
   // motor 2
-  TCCR3A = 0;
-  TCCR3B = 0;
-  TCCR3A |= _BV(WGM30) | _BV(COM3A1); // fast PWM, 8-bit, non-inverting
-  TCCR3B |= _BV(CS32) | _BV(CS30) | _BV(WGM32); // clk/1024 prescalar
+  //TCCR3A = 0;
+  //TCCR3B = 0;
+  //TCCR3A |= _BV(WGM30) | _BV(COM3A1); // fast PWM, 8-bit, non-inverting
+  //TCCR3B |= _BV(CS32) | _BV(CS30) | _BV(WGM32); // clk/1024 prescalar
 
   // motor 3
-  TCCR4A = 0;
-  TCCR4B = 0;
-  TCCR4A |= _BV(WGM40) | _BV(COM4A1); // fast PWM, 8-bit, non-inverting
-  TCCR4B |= _BV(CS42) | _BV(CS40) | _BV(WGM42); // clk/1024 prescalar
+  //TCCR4A = 0;
+  //TCCR4B = 0;
+  //TCCR4A |= _BV(WGM40) | _BV(COM4A1); // fast PWM, 8-bit, non-inverting
+  //TCCR4B |= _BV(CS42) | _BV(CS40) | _BV(WGM42); // clk/1024 prescalar
 
   // enable encoder interrupts
-  EICRB = 0;
-  EICRB |= _BV(ISC41) | _BV(ISC51); // set INT4 and INT5 to trigger on falling edges
-  EIMSK = 0;
-  EIMSK |= _BV(INT4) | _BV(INT5); // enable INT4 and INT5;
+  //EICRB = 0;
+  //EICRB |= _BV(ISC41) | _BV(ISC51); // set INT4 and INT5 to trigger on falling edges
+  //EIMSK = 0;
+  //EIMSK |= _BV(INT4) | _BV(INT5); // enable INT4 and INT5;
 
   // enable pullups on INT4 and INT5
-  PORTE |= _BV(PE4) | _BV(PE5);
+  //PORTE |= _BV(PE4) | _BV(PE5);
 }
 
 
@@ -334,21 +335,26 @@ ISR(TIMER1_COMPA_vect, ISR_BLOCK) {
     if (servo_num == 0) {
       TCNT1 = 0;
       OCR1A = 0;
+      digitalWrite(DATA_S_PIN,HIGH);
+    } else {
+      digitalWrite(DATA_S_PIN,LOW);
     }
     // set the next servo high (and all other servos low)
     OCR1A += servo_value[servo_num] + 2000;
     new_servo_data = servo_enabled[servo_num];
     servo_num++;
+    digitalWrite(CLK_S_PIN,HIGH);
+    digitalWrite(CLK_S_PIN,LOW);
   }
 
   // optimization: don't shift out new data if we're just setting it to the same thing
-  static volatile uint8_t current_servo_data = 0xFF;
-  if (new_servo_data != current_servo_data) {
-    current_servo_data = new_servo_data;
-    SHIFT_OUT_BYTE(new_servo_data);
-    PORTB |= _BV(PB7);
-    PORTB &= ~_BV(PB7);
-  }
+  //static volatile uint8_t current_servo_data = 0xFF;
+  //if (new_servo_data != current_servo_data) {
+  //  current_servo_data = new_servo_data;
+  //  SHIFT_OUT_BYTE(new_servo_data);
+  //  PORTB |= _BV(PB7);
+  //  PORTB &= ~_BV(PB7);
+  //}
 }
 
 // encoder 0
