@@ -94,11 +94,11 @@ void RoboShield::setMotor(uint8_t num, int8_t speed) {
   }
 
   cli();
-  SHIFT_OUT_BYTE(motor_value);
+  //SHIFT_OUT_BYTE(motor_value);
   //digitalWrite(MOTOR_LATCH_EN_PIN, HIGH);
   //digitalWrite(MOTOR_LATCH_EN_PIN, LOW);
-  PORTH |= _BV(PH5);
-  PORTH &= ~_BV(PH5);
+  //PORTH |= _BV(PH5);
+  //PORTH &= ~_BV(PH5);
   sei();
 }
 
@@ -162,6 +162,7 @@ void RoboShield::init(void) {
   pinMode(CLK_L_PIN, OUTPUT);
   digitalWrite(CLK_L_PIN, LOW);
   pinMode(DATA_L_PIN, OUTPUT);
+  digitalWrite(DATA_L_PIN,LOW);
 
   pinMode(CLK_M_PIN, OUTPUT);
   digitalWrite(CLK_M_PIN, LOW);
@@ -197,21 +198,43 @@ void RoboShield::lcdInit(void) {
   lcdWrite(0x06, true);
 }
 
-
 void RoboShield::lcdWrite4Bits(uint8_t data, bool is_control) {
   cli();
+
+  //SHIFT_OUT_BYTE(data << 4);
+  digitalWrite(CLK_L_PIN,LOW);
+  const uint8_t oV = PORTB & ~(0x60);
+  const uint8_t dV = oV | 0x40;
+  const uint8_t cV = oV | 0x20;
+    
+  if (data & _BV(3)) PORTB = dV;
+    PORTB = cV;
+    PORTB = oV;
+  if (data & _BV(2)) PORTB = dV;
+    PORTB = cV;
+    PORTB = oV;
+  if (data & _BV(1)) PORTB = dV;
+    PORTB = cV;
+    PORTB = oV;
+  if (data & _BV(0)) PORTB = dV;
+    PORTB = cV;
+    PORTB = oV;
+
   // set the LCD_RS pin
   if (is_control) {
-    PORTG &= ~_BV(PG5);
+    //PORTG &= ~_BV(PG5);
+    digitalWrite(DATA_L_PIN,LOW);
   } else {
-    PORTG |= _BV(PG5);
+    //PORTG |= _BV(PG5);
+    digitalWrite(DATA_L_PIN,HIGH);
   }
-  
-  SHIFT_OUT_BYTE(data << 4);
+  digitalWrite(CLK_L_PIN,HIGH);
+  digitalWrite(CLK_L_PIN,LOW);
+  digitalWrite(DATA_L_PIN,LOW);
   
   // toggle the LCD_E pin
-  PORTH |= _BV(PH4);
-  PORTH &= ~_BV(PH4);
+  PORTE |= _BV(PE3);
+  PORTE &= ~_BV(PE3);
   sei();
   delayMicroseconds(100);
 }
@@ -343,10 +366,10 @@ ISR(TIMER1_COMPA_vect, ISR_BLOCK) {
     OCR1A += servo_value[servo_num] + 2000;
     new_servo_data = servo_enabled[servo_num];
     servo_num++;
-    digitalWrite(CLK_S_PIN,HIGH);
-    digitalWrite(CLK_S_PIN,LOW);
   }
 
+  digitalWrite(CLK_S_PIN,HIGH);
+  digitalWrite(CLK_S_PIN,LOW);
   // optimization: don't shift out new data if we're just setting it to the same thing
   //static volatile uint8_t current_servo_data = 0xFF;
   //if (new_servo_data != current_servo_data) {
@@ -358,12 +381,12 @@ ISR(TIMER1_COMPA_vect, ISR_BLOCK) {
 }
 
 // encoder 0
-ISR(INT4_vect, ISR_NOBLOCK) {
+ISR(INT3_vect, ISR_NOBLOCK) {
   encoder0++;
 }
 
 //encoder 1
-ISR(INT5_vect, ISR_NOBLOCK) {
+ISR(INT2_vect, ISR_NOBLOCK) {
   encoder1++;
 }
 

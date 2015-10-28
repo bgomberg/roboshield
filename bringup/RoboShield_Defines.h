@@ -62,26 +62,26 @@
 /* Digital pins */
 #define CLK_S_PIN                 2  //PE4
 #define DATA_S_PIN                3  //PE5
-#define BUTTON_PIN                4  
-#define LCD_EN_PIN                5
-#define PWM2_PIN                  6
-#define PWM3_PIN                  7
-#define DIGITAL_0_PIN             8
-#define PWM0_PIN                  9
-#define PWM1_PIN                  10
+#define BUTTON_PIN                4  //PG5
+#define LCD_EN_PIN                5  //PE3
+#define PWM2_PIN                  6  //PH3
+#define PWM3_PIN                  7  //PH4
+#define DIGITAL_0_PIN             8  //PH5
+#define PWM0_PIN                  9  //PH6
+#define PWM1_PIN                  10  //PB4
 #define CLK_L_PIN                 11  //PB5
 #define DATA_L_PIN                12  //PB6
-#define LED_PIN                   13
-#define DIGITAL_1_PIN             14
-#define DIGITAL_2_PIN             15
+#define LED_PIN                   13  //PB7
+#define DIGITAL_1_PIN             14  //PJ1
+#define DIGITAL_2_PIN             15  //PJ0
 #define CLK_M_PIN                 16  //PH1
 #define DATA_M_PIN                17  //PH0
-#define DIGITAL_5_PIN             18
-#define DIGITAL_6_PIN             19
-#define DIGITAL_3_PIN             20
-#define DIGITAL_4_PIN             21
-#define ENCODER_0_PIN             DIGITAL_0_PIN
-#define ENCODER_1_PIN             DIGITAL_1_PIN
+#define DIGITAL_5_PIN             18  //PD3 - INT3
+#define DIGITAL_6_PIN             19  //PD2 - INT2
+#define DIGITAL_3_PIN             20  //PD1
+#define DIGITAL_4_PIN             21  //PD0
+#define ENCODER_0_PIN             DIGITAL_5_PIN
+#define ENCODER_1_PIN             DIGITAL_6_PIN
 static const uint8_t DIGITAL_PIN_MAPPING[] = {
   DIGITAL_0_PIN,
   DIGITAL_1_PIN,
