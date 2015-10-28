@@ -86,15 +86,15 @@ void RoboShield::setMotor(uint8_t num, int8_t speed) {
       OCR2A = 255 * speed / 100;
       break;
     case 2:
-      OCR3A = 255 * speed / 100;
+      OCR4A = 255 * speed / 100;
       break;
     case 3:
-      OCR4A = 255 * speed / 100;
+      OCR4B = 255 * speed / 100;
       break;
   }
 
   cli();
-  //SHIFT_OUT_BYTE(motor_value);
+  SHIFT_OUT_BYTE(motor_value);
   //digitalWrite(MOTOR_LATCH_EN_PIN, HIGH);
   //digitalWrite(MOTOR_LATCH_EN_PIN, LOW);
   //PORTH |= _BV(PH5);
@@ -167,6 +167,7 @@ void RoboShield::init(void) {
   pinMode(CLK_M_PIN, OUTPUT);
   digitalWrite(CLK_M_PIN, LOW);
   pinMode(DATA_M_PIN, OUTPUT);
+  digitalWrite(DATA_M_PIN, LOW);
   
   pinMode(LCD_EN_PIN, OUTPUT);
   digitalWrite(LCD_EN_PIN, LOW);
@@ -199,10 +200,10 @@ void RoboShield::lcdInit(void) {
 }
 
 void RoboShield::lcdWrite4Bits(uint8_t data, bool is_control) {
-  cli();
+  //cli();
 
   //SHIFT_OUT_BYTE(data << 4);
-  digitalWrite(CLK_L_PIN,LOW);
+  //digitalWrite(CLK_L_PIN,LOW);
   const uint8_t oV = PORTB & ~(0x60);
   const uint8_t dV = oV | 0x40;
   const uint8_t cV = oV | 0x20;
@@ -223,19 +224,19 @@ void RoboShield::lcdWrite4Bits(uint8_t data, bool is_control) {
   // set the LCD_RS pin
   if (is_control) {
     //PORTG &= ~_BV(PG5);
-    digitalWrite(DATA_L_PIN,LOW);
+    //digitalWrite(DATA_L_PIN,LOW);
   } else {
     //PORTG |= _BV(PG5);
-    digitalWrite(DATA_L_PIN,HIGH);
+    //digitalWrite(DATA_L_PIN,HIGH);
+    PORTB = dV;
   }
-  digitalWrite(CLK_L_PIN,HIGH);
-  digitalWrite(CLK_L_PIN,LOW);
-  digitalWrite(DATA_L_PIN,LOW);
+  PORTB = cV;
+  PORTB = oV;
   
   // toggle the LCD_E pin
   PORTE |= _BV(PE3);
   PORTE &= ~_BV(PE3);
-  sei();
+  //sei();
   delayMicroseconds(100);
 }
 
@@ -314,23 +315,24 @@ size_t RoboShield::write(uint8_t character) {
 
 void RoboShield::motorInit(void) {
   // motor 0
-  //TCCR2A |= _BV(WGM21) | _BV(WGM20) | _BV(COM2B1); //fast PWM, non-inverting
-  //TCCR2B |= _BV(CS22) | _BV(CS21) | _BV(CS20); // clk/1024 prescalar
+  TCCR2A |= _BV(WGM21) | _BV(WGM20) | _BV(COM2B1); //fast PWM, non-inverting
+  TCCR2B |= _BV(CS22) | _BV(CS21) | _BV(CS20); // clk/1024 prescalar
 
   // motor 1
-  //TCCR2A |= _BV(COM2A1); //fast PWM, non-inverting
+  TCCR2A |= _BV(COM2A1); //fast PWM, non-inverting
 
   // motor 2
+  TCCR4A = 0;
+  TCCR4B = 0;
+  TCCR4A |= _BV(COM4B1);
   //TCCR3A = 0;
   //TCCR3B = 0;
   //TCCR3A |= _BV(WGM30) | _BV(COM3A1); // fast PWM, 8-bit, non-inverting
   //TCCR3B |= _BV(CS32) | _BV(CS30) | _BV(WGM32); // clk/1024 prescalar
 
   // motor 3
-  //TCCR4A = 0;
-  //TCCR4B = 0;
-  //TCCR4A |= _BV(WGM40) | _BV(COM4A1); // fast PWM, 8-bit, non-inverting
-  //TCCR4B |= _BV(CS42) | _BV(CS40) | _BV(WGM42); // clk/1024 prescalar
+  TCCR4A |= _BV(WGM40) | _BV(COM4A1); // fast PWM, 8-bit, non-inverting
+  TCCR4B |= _BV(CS42) | _BV(CS40) | _BV(WGM42); // clk/1024 prescalar
 
   // enable encoder interrupts
   //EICRB = 0;

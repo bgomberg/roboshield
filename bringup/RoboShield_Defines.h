@@ -29,33 +29,33 @@
   } while (0)
 #define SHIFT_OUT_BYTE(data) \
   do { \
-    const uint8_t oV = PORTB & ~(0x60); \
-    const uint8_t dV = oV | 0x40; \
-    const uint8_t cV = oV | 0x20; \
-    if (data & _BV(7)) PORTB = dV; \
-    PORTB = cV; \
-    PORTB = oV; \
-    if (data & _BV(6)) PORTB = dV; \
-    PORTB = cV; \
-    PORTB = oV; \
-    if (data & _BV(5)) PORTB = dV; \
-    PORTB = cV; \
-    PORTB = oV; \
-    if (data & _BV(4)) PORTB = dV; \
-    PORTB = cV; \
-    PORTB = oV; \
-    if (data & _BV(3)) PORTB = dV; \
-    PORTB = cV; \
-    PORTB = oV; \
-    if (data & _BV(2)) PORTB = dV; \
-    PORTB = cV; \
-    PORTB = oV; \
-    if (data & _BV(1)) PORTB = dV; \
-    PORTB = cV; \
-    PORTB = oV; \
-    if (data & _BV(0)) PORTB = dV; \
-    PORTB = cV; \
-    PORTB = oV; \
+    const uint8_t oV = PORTH & ~(0x03); \
+    const uint8_t dV = oV | 0x01; \
+    const uint8_t cV = oV | 0x02; \
+    if (data & _BV(7)) PORTH = dV; \
+    PORTH = cV; \
+    PORTH = oV; \
+    if (data & _BV(6)) PORTH = dV; \
+    PORTH = cV; \
+    PORTH = oV; \
+    if (data & _BV(5)) PORTH = dV; \
+    PORTH = cV; \
+    PORTH = oV; \
+    if (data & _BV(4)) PORTH = dV; \
+    PORTH = cV; \
+    PORTH = oV; \
+    if (data & _BV(3)) PORTH = dV; \
+    PORTH = cV; \
+    PORTH = oV; \
+    if (data & _BV(2)) PORTH = dV; \
+    PORTH = cV; \
+    PORTH = oV; \
+    if (data & _BV(1)) PORTH = dV; \
+    PORTH = cV; \
+    PORTH = oV; \
+    if (data & _BV(0)) PORTH = dV; \
+    PORTH = cV; \
+    PORTH = oV; \
   } while (0)
 
 
@@ -64,11 +64,11 @@
 #define DATA_S_PIN                3  //PE5
 #define BUTTON_PIN                4  //PG5
 #define LCD_EN_PIN                5  //PE3
-#define PWM2_PIN                  6  //PH3
-#define PWM3_PIN                  7  //PH4
+#define PWM2_PIN                  6  //PH3 - OC4A
+#define PWM3_PIN                  7  //PH4 - OC4B
 #define DIGITAL_0_PIN             8  //PH5
-#define PWM0_PIN                  9  //PH6
-#define PWM1_PIN                  10  //PB4
+#define PWM0_PIN                  9  //PH6 - OC2B
+#define PWM1_PIN                  10  //PB4 - OC2A
 #define CLK_L_PIN                 11  //PB5
 #define DATA_L_PIN                12  //PB6
 #define LED_PIN                   13  //PB7
