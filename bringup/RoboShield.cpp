@@ -62,6 +62,7 @@ float RoboShield::batteryVoltage(void) {
 }
 
 static uint8_t motor_value = 0;
+static uint8_t old_motor_value = 0;
 void RoboShield::setMotor(uint8_t num, int8_t speed) {
   if (!_motor_init) {
     motorInit();
@@ -93,13 +94,17 @@ void RoboShield::setMotor(uint8_t num, int8_t speed) {
       break;
   }
 
-  cli();
-  SHIFT_OUT_BYTE(motor_value);
-  //digitalWrite(MOTOR_LATCH_EN_PIN, HIGH);
-  //digitalWrite(MOTOR_LATCH_EN_PIN, LOW);
-  //PORTH |= _BV(PH5);
-  //PORTH &= ~_BV(PH5);
-  sei();
+  if (motor_value != old_motor_value) {
+    cli();
+    SHIFT_OUT_BYTE(motor_value);
+    //digitalWrite(MOTOR_LATCH_EN_PIN, HIGH);
+    //digitalWrite(MOTOR_LATCH_EN_PIN, LOW);
+    //PORTH |= _BV(PH5);
+    //PORTH &= ~_BV(PH5);
+    sei();
+  }
+
+  old_motor_value = motor_value;
 }
 
 static volatile uint16_t servo_value[NUM_SERVOS];
@@ -335,13 +340,13 @@ void RoboShield::motorInit(void) {
   TCCR4B |= _BV(CS42) | _BV(CS40) | _BV(WGM42); // clk/1024 prescalar
 
   // enable encoder interrupts
-  //EICRB = 0;
-  //EICRB |= _BV(ISC41) | _BV(ISC51); // set INT4 and INT5 to trigger on falling edges
-  //EIMSK = 0;
-  //EIMSK |= _BV(INT4) | _BV(INT5); // enable INT4 and INT5;
+  EICRA = 0;
+  EICRA |= _BV(ISC21) | _BV(ISC31); // set INT2 and INT3 to trigger on falling edges
+  EIMSK = 0;
+  EIMSK |= _BV(INT2) | _BV(INT3); // enable INT2 and INT3;
 
   // enable pullups on INT4 and INT5
-  //PORTE |= _BV(PE4) | _BV(PE5);
+  PORTD |= _BV(PD2) | _BV(PD3);
 }
 
 
@@ -420,6 +425,8 @@ void RoboShield::debuggingMode(void) {
         break;
     }
 
+    while(!buttonPressed()) {}
+    
     if (buttonPressed()) {
       uint32_t start_time = millis();
       uint8_t hold = 0;
