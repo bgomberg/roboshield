@@ -60,28 +60,26 @@
 
 
 /* Digital pins */
-#define BUTTON_PIN                0
-#define LED_PIN                   1
-#define DIGITAL_0_PIN             2
-#define DIGITAL_1_PIN             3
-#define LCD_RS_PIN                4
-#define PWM2_PIN                  5
-#define PWM3_PIN                  6
-#define LCD_EN_PIN                7
-#define MOTOR_LATCH_EN_PIN        8
+#define CLK_S_PIN                 2
+#define DATA_S_PIN                3
+#define BUTTON_PIN                4
+#define LCD_EN_PIN                5
+#define PWM2_PIN                  6
+#define PWM3_PIN                  7
+#define DIGITAL_0_PIN             8
 #define PWM0_PIN                  9
 #define PWM1_PIN                  10
-#define SHIFT_REG_CLK_PIN         11
-#define SHIFT_REG_DATA_PIN        12
-#define SERVO_LATCH_EN_PIN        13
-#define DIGITAL_2_PIN             14
-#define DIGITAL_3_PIN             15
-#define DIGITAL_4_PIN             16
-#define DIGITAL_5_PIN             17
-#define DIGITAL_6_PIN             18
-#define DIGITAL_7_PIN             19
-#define DIGITAL_8_PIN             20
-#define DIGITAL_9_PIN             21
+#define CLK_L_PIN                 11
+#define DATA_L_PIN                12
+#define LED_PIN                   13
+#define DIGITAL_1_PIN             14
+#define DIGITAL_2_PIN             15
+#define CLK_M_PIN                 16
+#define DATA_M_PIN                17
+#define DIGITAL_5_PIN             18
+#define DIGITAL_6_PIN             19
+#define DIGITAL_3_PIN             20
+#define DIGITAL_4_PIN             21
 #define ENCODER_0_PIN             DIGITAL_0_PIN
 #define ENCODER_1_PIN             DIGITAL_1_PIN
 static const uint8_t DIGITAL_PIN_MAPPING[] = {
@@ -91,16 +89,13 @@ static const uint8_t DIGITAL_PIN_MAPPING[] = {
   DIGITAL_3_PIN,
   DIGITAL_4_PIN,  
   DIGITAL_5_PIN,
-  DIGITAL_6_PIN,
-  DIGITAL_7_PIN,
-  DIGITAL_8_PIN,
-  DIGITAL_9_PIN
+  DIGITAL_6_PIN
 };
 #define NUM_DIGITAL_PINS (sizeof(DIGITAL_PIN_MAPPING)/sizeof(DIGITAL_PIN_MAPPING[0]))
 
 
 /* Analog pins */
-#define BATTERY_VOLTAGE_PIN       14
+#define BATTERY_VOLTAGE_PIN       11
 
 
 #endif // __ROBO_SHIELD_DEFINES_H__

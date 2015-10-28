@@ -154,13 +154,18 @@ void RoboShield::init(void) {
   pinMode(PWM1_PIN, OUTPUT);
   pinMode(PWM2_PIN, OUTPUT);
   pinMode(PWM3_PIN, OUTPUT);
-  pinMode(SHIFT_REG_CLK_PIN, OUTPUT);
-  digitalWrite(SHIFT_REG_CLK_PIN, LOW);
-  pinMode(SHIFT_REG_DATA_PIN, OUTPUT);
-  pinMode(SERVO_LATCH_EN_PIN, OUTPUT);
-  pinMode(MOTOR_LATCH_EN_PIN, OUTPUT);
-  pinMode(LCD_RS_PIN, OUTPUT);
-  digitalWrite(LCD_RS_PIN, LOW);
+  pinMode(CLK_S_PIN, OUTPUT);
+  digitalWrite(CLK_S_PIN, LOW);
+  pinMode(DATA_S_PIN, OUTPUT);
+
+  pinMode(CLK_L_PIN, OUTPUT);
+  digitalWrite(CLK_L_PIN, LOW);
+  pinMode(DATA_L_PIN, OUTPUT);
+
+  pinMode(CLK_M_PIN, OUTPUT);
+  digitalWrite(CLK_M_PIN, LOW);
+  pinMode(DATA_M_PIN, OUTPUT);
+  
   pinMode(LCD_EN_PIN, OUTPUT);
   digitalWrite(LCD_EN_PIN, LOW);
 
