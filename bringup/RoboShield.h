@@ -41,6 +41,11 @@ public:
   virtual size_t write(uint8_t);
   using Print::write;
 
+  void initMPU6050(void);
+  void readMPU(void);
+  int16_t readAccelX(void);
+  int16_t readGyroZ(void);
+
 private:
   // private methods
   void init(void);
