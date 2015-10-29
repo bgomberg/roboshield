@@ -442,19 +442,22 @@ void RoboShield::debuggingMode(void) {
     lcdSetCursor(0, 0);
     switch (selector) {
       case 0:
-        lcdPrintf("Digital 1/5");
+        lcdPrintf("Digital 1/6");
         break;
       case 1:
-        lcdPrintf("Analog 2/5");
+        lcdPrintf("Analog 2/6");
         break;
       case 2:
-        lcdPrintf("Servo 3/5");
+        lcdPrintf("Servo 3/6");
         break;
       case 3:
-        lcdPrintf("Motor 4/5");
+        lcdPrintf("Motor 4/6");
         break;
       case 4:
-        lcdPrintf("Battery 5/5");
+        lcdPrintf("Battery 5/6");
+        break;
+      case 5:
+        lcdPrintf("IMU test 6/6");
         break;
     }
 
@@ -579,6 +582,18 @@ void RoboShield::debuggingMode(void) {
               printFloat(batteryVoltage(), 2);
               lcdPrintf("V");
               break;
+            case 5:
+              initMPU6050();
+              
+              while(1==1) {
+                lcdClear();
+                readMPU();
+                lcdPrintf ("%d", readAccelX());
+                lcdSetCursor(0,1);
+                lcdPrintf ("%d", readGyroZ());
+                delay(100);
+              }
+              break;
           }
 
           delay(100);
@@ -596,7 +611,7 @@ void RoboShield::debuggingMode(void) {
         delayMicroseconds(5000);
       } else {  // no hold detected, so go to next menu option
         selector++;
-        selector %= 5;
+        selector %= 6;
 
         // loop while button is pressed
         while (buttonPressed()) {}
