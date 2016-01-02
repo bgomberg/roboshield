@@ -59,7 +59,7 @@ int RoboShield::getAnalog(uint8_t pin) {
 }
 
 float RoboShield::batteryVoltage(void) {
-  return (float)(analogRead(BATTERY_VOLTAGE_PIN) * MAX_BATTERY_VOLTAGE / 1024.0);
+  return (float)(analogRead(BATTERY_VOLTAGE_PIN) * 5.0 * 9.5 / 2.0 / 1012.0);
 }
 
 static uint8_t motor_value = 0;
@@ -398,9 +398,11 @@ ISR(TIMER1_COMPA_vect, ISR_BLOCK) {
     if (servo_num == 0) {
       TCNT1 = 0;
       OCR1A = 0;
-      digitalWrite(DATA_S_PIN,HIGH);
+      //digitalWrite(DATA_S_PIN,HIGH);
+      PORTE |= _BV(5);
     } else {
-      digitalWrite(DATA_S_PIN,LOW);
+      //digitalWrite(DATA_S_PIN,LOW);
+      PORTE &= ~_BV(5);
     }
     // set the next servo high (and all other servos low)
     OCR1A += servo_value[servo_num] + 2000;
@@ -408,8 +410,10 @@ ISR(TIMER1_COMPA_vect, ISR_BLOCK) {
     servo_num++;
   }
 
-  digitalWrite(CLK_S_PIN,HIGH);
-  digitalWrite(CLK_S_PIN,LOW);
+  //digitalWrite(CLK_S_PIN,HIGH);
+  //digitalWrite(CLK_S_PIN,LOW);
+  PORTE |= _BV(4);  //CLK_S_PIN, HIGH
+  PORTE &= ~_BV(4); //CLK_S_PIN, LOW
   // optimization: don't shift out new data if we're just setting it to the same thing
   //static volatile uint8_t current_servo_data = 0xFF;
   //if (new_servo_data != current_servo_data) {
@@ -490,9 +494,13 @@ void RoboShield::debuggingMode(void) {
           lcdClear();
           switch (selector) {
             case 0:
-              for (uint8_t i = 0; i < 10; i++) {
-                lcdPrintf("%d", readPin(i));
-              }
+              lcdPrintf("%d", readPin(8));
+              lcdPrintf("%d", readPin(14));
+              lcdPrintf("%d", readPin(15));
+              lcdPrintf("%d", readPin(20));
+              lcdPrintf("%d", readPin(21));
+              lcdPrintf("%d", readPin(18));
+              lcdPrintf("%d", readPin(19));
               break;
             case 1:
               //while(buttonPressed()) {} // loop until button is released
@@ -513,13 +521,15 @@ void RoboShield::debuggingMode(void) {
                     lcdPrintf("%4d", getAnalog(i));
                   }
                 } else { // display analog 8 through 14
-                  for (uint8_t i = 8; i < 12; i++) {
+                  for (uint8_t i = 8; i < 11; i++) {
                     lcdPrintf("%4d", getAnalog(i));
                   }
 
+                  lcdPrintf("%4d", getAnalog(12));
+
                   lcdSetCursor(0, 1);
 
-                  for (uint8_t i = 12; i < 14; i++) {
+                  for (uint8_t i = 13; i < 15; i++) {
                     lcdPrintf("%4d", getAnalog(i));
                   }
                 }
@@ -548,7 +558,7 @@ void RoboShield::debuggingMode(void) {
               lcdPrintf("Servo test");
               if (mcounter < 25) {
                 for (uint8_t i = 0; i < 8; i++) {
-                  setServo(i, 50);
+                  setServo(i, 100);
                 }
               } else {
                 for (uint8_t i = 0; i < 8; i++) {

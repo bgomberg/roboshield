@@ -4,6 +4,8 @@
 RoboShield roboShield;
 
 void setup() {
+  if (roboShield.buttonPressed())
+    roboShield.debuggingMode();
 }
 
 void loop() {
@@ -24,21 +26,34 @@ void loop() {
     delay(100);
   }*/
 
-  while(1==0) {
-  for (uint8_t i = 0; i < 8; i++) {
-    roboShield.setServo(i, 0);
-  }
+  uint8_t i=0;
 
-  delay(1000);
-
-  for (uint8_t i = 0; i < 8; i++) {
-    roboShield.setServo(i, 100);
-  }
-
-  delay(1000);
-
+  for (i=0;i<7;i++) {
+    roboShield.setServo(i,100);
   }
   
+  while(1==1) {
+    //roboShield.setMotor(0,50);
+    //roboShield.setMotor(1,-50);
+
+    if (i==0) {
+      roboShield.setMotor(3,-50);
+      roboShield.setMotor(2,-50);
+      roboShield.setMotor(1,50);
+      roboShield.setMotor(0,50);
+      i++;
+    } else {
+      roboShield.setMotor(3,50);
+      roboShield.setMotor(2,50);
+      roboShield.setMotor(1,-50);
+      roboShield.setMotor(0,-50);
+      i=0;
+    }
+
+    //roboShield.setMotor(3,50);
+    delay(2000);
+  }
+
   roboShield.debuggingMode();
   delay(50);
 }
