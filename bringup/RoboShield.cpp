@@ -494,13 +494,13 @@ void RoboShield::debuggingMode(void) {
           lcdClear();
           switch (selector) {
             case 0:
-              lcdPrintf("%d", readPin(8));
-              lcdPrintf("%d", readPin(14));
-              lcdPrintf("%d", readPin(15));
-              lcdPrintf("%d", readPin(20));
-              lcdPrintf("%d", readPin(21));
-              lcdPrintf("%d", readPin(18));
-              lcdPrintf("%d", readPin(19));
+              lcdPrintf("%d", readPin(0));
+              lcdPrintf("%d", readPin(1));
+              lcdPrintf("%d", readPin(2));
+              lcdPrintf("%d", readPin(3));
+              lcdPrintf("%d", readPin(4));
+              lcdPrintf("%d", readPin(5));
+              lcdPrintf("%d", readPin(6));
               break;
             case 1:
               //while(buttonPressed()) {} // loop until button is released
@@ -556,19 +556,15 @@ void RoboShield::debuggingMode(void) {
               break;
             case 2:
               lcdPrintf("Servo test");
-              if (mcounter < 25) {
+              while(1) {
                 for (uint8_t i = 0; i < 8; i++) {
                   setServo(i, 100);
+                  delay(300);
                 }
-              } else {
                 for (uint8_t i = 0; i < 8; i++) {
                   setServo(i, 0);
+                  delay(300);
                 }
-              }
-
-              mcounter++;
-              if (mcounter > 50) {
-                mcounter = 0;
               }
 
               break;
