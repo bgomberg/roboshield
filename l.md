@@ -3,7 +3,7 @@ layout: default
 title: Roboshield Assembly Page
 ---
 
-{{"
+
 ### Library Reference
 
 `analog()`
@@ -18,7 +18,3 @@ The Roboshield is distributed as a kit and will need to be assembled.  All the s
 
 test
 
-" | markdownify}}
-
-  </body>
-</html>
