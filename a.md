@@ -5,16 +5,7 @@ title: Roboshield Assembly Page
 
     <section class="main-content">
 
-{{"
-### Assembly Manual
-
-The Roboshield is distributed as a kit and will need to be assembled.  All the surface mount components have already been soldered to the board.  The only assembled required is for the through hole components.
-
-###Another Header
-
-test
-
-" | markdownify}}
+<p>Roboshield is a robotics oriented shield for the Arduino Mega.</p>
 
       <footer class="site-footer">
         <span class="site-footer-owner"><a href="https://github.com/roboshield/roboshield">Roboshield</a> is maintained by <a href="https://github.com/roboshield">roboshield</a>.</span>

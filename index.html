@@ -1,80 +1,55 @@
-<!DOCTYPE html>
-<html lang="en-us">
-  <head>
-    <meta charset="UTF-8">
-    <title>Roboshield by roboshield</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
-    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
-    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
-  </head>
-  <body>
-    <section class="page-header">
-      <h1 class="project-name">Cal Poly Roboshield</h1>
-      <h2 class="project-tagline"></h2>
-      <a href="https://github.com/roboshield/roboshield" class="btn">View on GitHub</a>
-      <a href="https://github.com/roboshield/roboshield/zipball/master" class="btn">Download .zip</a>
-      <a href="https://github.com/roboshield/roboshield/tarball/master" class="btn">Download .tar.gz</a>
-    </section>
+---
+layout: default
+title: Roboshield Assembly Page
+---
 
-    <section class="main-content">
-      <h3>
-<a id="welcome-to-roboshield" class="anchor" href="#welcome-to-roboshield" aria-hidden="true"><span class="octicon octicon-link"></span></a>Welcome to Roboshield</h3>
+<section class="main-content">
 
-<p>Roboshield is a robotics oriented shield for the Arduino Mega.</p>
+{{"
+###Welcome to Roboshield
+
+Roboshield is a robotics oriented shield for the Arduino Mega.
+
+" | markdownify}}
 
 <img src="roboshield5.jpg" alt="Roboshield">
 
-<h3>
-<a id="features" class="anchor" href="#features" aria-hidden="true"><span class="octicon octicon-link"></span></a>Features</h3>
+{{"
+###Features
 
-<ul>
-<li>14 analog inputs</li>
-<li>up to 7 digital I/O pins</li>
-<li>4 x 2Amp DC motor outputs (DRV8848 H-bridge)
+* 14 analog inputs
+* up to 7 digital I/O pins
+* 4 x 2Amp DC motor outputs (DRV8848 H-bridge)
+  * 2 of the outputs support Pololu 6-pin motors with software support for reading encoders
+* 8 RC servo outputs
+  * servo power regulated to 5V
+* 1 software controlled LED
+* 16x2 LCD
+* battery voltage monitoring
+* 7-15V input voltage
+* on/off switch
+* protection
+  * reverse power input protection
+  * input pins protected against high voltage application
+* support for the GY-521 accelerometer/gyroscope breakout board
+  * readily available on Ebay
+* external servo and motor supply capable
 
-<ul>
-<li>2 of the outputs support Pololu 6-pin motors with software support for reading encoders</li>
-</ul>
-</li>
-<li>8 RC servo outputs</li>
-<li>servo power regulated to 5V</li>
-<li>1 software controlled LED</li>
-<li>16x2 LCD</li>
-<li>battery voltage monitoring</li>
-<li>7-15V input voltage</li>
-<li>on/off switch</li>
-<li>protection
+---
 
-<ul>
-<li>reverse power input protection</li>
-<li>input pins protected against high voltage application</li>
-</ul>
-</li>
-<li>support for the GY-521 accelerometer/gyroscope breakout board
+" | markdownify}}
 
-<ul>
-<li>readily available on Ebay</li>
-</ul>
-</li>
-<li>external servo and motor supply capable</li>
-</ul>
-
-<hr>
-
-<p><a href="test">Test Page</a></p>
 <p><a href="assembly">Assembly Manual</a></p>
+<p><a href="library">Library Reference</a></p>
 
-<h3>
-<a id="authors-and-contributors" class="anchor" href="#authors-and-contributors" aria-hidden="true"><span class="octicon octicon-link"></span></a>Authors and Contributors</h3>
+{{"
 
-<p>The Cal Poly Roboshield was designed by alumnus Brian Gomberg (CPE 2013) and faculty member John Seng.  The project is sponsored by Roborodentia alumni.</p>
+##Authors and Contributors
 
-<h3>
-<a id="support-or-contact" class="anchor" href="#support-or-contact" aria-hidden="true"><span class="octicon octicon-link"></span></a>Support or Contact</h3>
 
-<p>Having trouble with Pages? Check out our <a href="https://help.github.com/pages">documentation</a> or <a href="https://github.com/contact">contact support</a> and we’ll help you sort it out.</p>
+The Cal Poly Roboshield was designed by alumnus Brian Gomberg (CPE 2013) and faculty member John Seng.  The project is sponsored by Roborodentia alumni.
+
+" | markdownify}}
 
       <footer class="site-footer">
         <span class="site-footer-owner"><a href="https://github.com/roboshield/roboshield">Roboshield</a> is maintained by <a href="https://github.com/roboshield">roboshield</a>.</span>
