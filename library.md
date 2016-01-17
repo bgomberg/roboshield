@@ -1,34 +1,32 @@
 ---
 layout: default
-title: Roboshield Assembly Page
+title: Roboshield Library Reference Page
 ---
 
 
 ### Library Reference
 
-`buttonPressed()`
+`uint8_t buttonPressed()`
 
-`setPinMode()`
+`void setLED(bool)`
 
-`readPin()`
+`uint8_t setPinMode(uint8_t pin, uint8_t mode)`
 
-`setPin()`
+`readPin(uint8_t pin)`
 
-`getAnalog()`
+`setPin(uint8_t pin, bool state)`
 
-`setMotor()` - motor control function
+`getAnalog(uint8_t pin)`
 
-`setServo()` - servo control function
+`setMotor(uint8_t motor_num, int8_t speed)` - motor control function
 
-`readEncoder()`
+`setServo(uint8_t servo_num, int8_t position)` - servo control function
 
-`resetEncoder()`
+`float batteryVoltage()`
 
-`initMPU6050()`
+---
 
-`readAccelX()`
-
-`readGyroZ()`
+#### LCD Functions
 
 `lcdSetCursor(col,row)`
 
@@ -36,9 +34,31 @@ title: Roboshield Assembly Page
 
 `lcdClear()`
 
-The Roboshield is distributed as a kit and will need to be assembled.  All the surface mount components have already been soldered to the board.  The only assembled required is for the through hole components.
+---
 
-###Another Header
+#### Encoders
 
-test
+`enableEncoders()`
+
+`disableEncoders()`
+
+`readEncoder(uint8_t)`
+
+`resetEncoder(uint8_t)`
+
+---
+
+#### GY-521 
+
+`initMPU6050()`
+
+`readAccelX()`
+`readAccelY()`
+`readAccelZ()`
+
+`readGyroX()`
+`readGyroY()`
+`readGyroZ()`
+
+
 
