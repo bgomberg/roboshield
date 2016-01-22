@@ -5,7 +5,6 @@
 
 static RoboShield *s_active_object = NULL;
 
-
 // Public methods
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -160,6 +159,22 @@ void RoboShield::readMPU(void) {
 
 int16_t RoboShield::readAccelX(void) {
   return AcX;
+}
+
+int16_t RoboShield::readAccelY(void) {
+  return AcY;
+}
+
+int16_t RoboShield::readAccelZ(void) {
+  return AcZ;
+}
+
+int16_t RoboShield::readGyroX(void) {
+  return GyX;
+}
+
+int16_t RoboShield::readGyroY(void) {
+  return GyY;
 }
 
 int16_t RoboShield::readGyroZ(void) {
@@ -381,10 +396,8 @@ ISR(TIMER1_COMPA_vect, ISR_BLOCK) {
     if (servo_num == 0) {
       TCNT1 = 0;
       OCR1A = 0;
-      //digitalWrite(DATA_S_PIN,HIGH);
       PORTE |= _BV(5);
     } else {
-      //digitalWrite(DATA_S_PIN,LOW);
       PORTE &= ~_BV(5);
     }
     // set the next servo high (and all other servos low)

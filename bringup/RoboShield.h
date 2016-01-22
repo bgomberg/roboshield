@@ -44,6 +44,10 @@ public:
   void initMPU6050(void);
   void readMPU(void);
   int16_t readAccelX(void);
+  int16_t readAccelY(void);
+  int16_t readAccelZ(void);
+  int16_t readGyroX(void);
+  int16_t readGyroY(void);
   int16_t readGyroZ(void);
 
 private:
