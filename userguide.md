@@ -10,7 +10,7 @@ title: Roboshield User Guide
 
 ### Applying Power
 
-Main power (7-15V) for the Roboshield is applied through the main power terminals.  **Never** apply power to the Arduino Mega barrel jack when using the Roboshield.  This will short the power terminals and the barrel jack.
+Main power (7-15V) for the Roboshield is applied through the main power terminals (upper left corner).  **Never** apply power to the Arduino Mega barrel jack when using the Roboshield.  This will short the power terminals and the barrel jack.
 
 7-15V may be applied and by default, this voltage is sent directly to the motor drivers and is regulated to 5V (8A maximum current) for the servos.  NOTE: when applying a voltage above 10V, the Arduino Mega 5V regulator will become hot, but will be functional.
 
@@ -36,12 +36,21 @@ Only 1 pin of the quadrature encoders are read by the software library (the EA p
 
 ### I2C Functionality
 
-Digital pins 3 and 4 are shared with the SCL and SDA pins.  These pins are labeled D3-SCL and D4-SDA.  If both I2C_EN solder bridges are shorted, 
-
+Digital pins 3 and 4 are shared with the SCL and SDA pins.  These pins are labeled D3-SCL and D4-SDA.  If both I2C_EN solder bridges are shorted, digital input/output functionality is not available for these pins.  
 
 ---
 
-### GY-521 
+### GY-521 (MPU6050 Accelerometer/Gyroscope Breakout Board)
 
+<img src="images/gy-521.jpg" alt="GY-521" style="width: 150px;"/>
+
+In order to use the GY-521, configure the following options on the Roboshield
+
+* Each I2C_EN solder bridge must be closed
+* The I2C_PWR solder bridge must be shorted to 3V3
+
+You will need a 4-pin male header to attached the breakout board to the Roboshield.  Solder the header to the pins: SDA, SCL, GND, and VCC on the GY-521.
+
+When using the GY-521, digital pins D3 and D4 will not be available for use.
 
 
