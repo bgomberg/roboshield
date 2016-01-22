@@ -98,10 +98,6 @@ void RoboShield::setMotor(uint8_t num, int8_t speed) {
   if (motor_value != old_motor_value) {
     cli();
     SHIFT_OUT_BYTE(motor_value);
-    //digitalWrite(MOTOR_LATCH_EN_PIN, HIGH);
-    //digitalWrite(MOTOR_LATCH_EN_PIN, LOW);
-    //PORTH |= _BV(PH5);
-    //PORTH &= ~_BV(PH5);
     sei();
   }
 
@@ -238,10 +234,6 @@ void RoboShield::lcdInit(void) {
 }
 
 void RoboShield::lcdWrite4Bits(uint8_t data, bool is_control) {
-  //cli();
-
-  //SHIFT_OUT_BYTE(data << 4);
-  //digitalWrite(CLK_L_PIN,LOW);
   const uint8_t oV = PORTB & ~(0x60);
   const uint8_t dV = oV | 0x40;
   const uint8_t cV = oV | 0x20;
@@ -261,11 +253,7 @@ void RoboShield::lcdWrite4Bits(uint8_t data, bool is_control) {
 
   // set the LCD_RS pin
   if (is_control) {
-    //PORTG &= ~_BV(PG5);
-    //digitalWrite(DATA_L_PIN,LOW);
   } else {
-    //PORTG |= _BV(PG5);
-    //digitalWrite(DATA_L_PIN,HIGH);
     PORTB = dV;
   }
   PORTB = cV;
@@ -274,7 +262,6 @@ void RoboShield::lcdWrite4Bits(uint8_t data, bool is_control) {
   // toggle the LCD_E pin
   PORTE |= _BV(PE3);
   PORTE &= ~_BV(PE3);
-  //sei();
   delayMicroseconds(100);
 }
 
@@ -363,10 +350,6 @@ void RoboShield::motorInit(void) {
   TCCR4A = 0;
   TCCR4B = 0;
   TCCR4A |= _BV(COM4B1);
-  //TCCR3A = 0;
-  //TCCR3B = 0;
-  //TCCR3A |= _BV(WGM30) | _BV(COM3A1); // fast PWM, 8-bit, non-inverting
-  //TCCR3B |= _BV(CS32) | _BV(CS30) | _BV(WGM32); // clk/1024 prescalar
 
   // motor 3
   TCCR4A |= _BV(WGM40) | _BV(COM4A1); // fast PWM, 8-bit, non-inverting
@@ -410,18 +393,8 @@ ISR(TIMER1_COMPA_vect, ISR_BLOCK) {
     servo_num++;
   }
 
-  //digitalWrite(CLK_S_PIN,HIGH);
-  //digitalWrite(CLK_S_PIN,LOW);
   PORTE |= _BV(4);  //CLK_S_PIN, HIGH
   PORTE &= ~_BV(4); //CLK_S_PIN, LOW
-  // optimization: don't shift out new data if we're just setting it to the same thing
-  //static volatile uint8_t current_servo_data = 0xFF;
-  //if (new_servo_data != current_servo_data) {
-  //  current_servo_data = new_servo_data;
-  //  SHIFT_OUT_BYTE(new_servo_data);
-  //  PORTB |= _BV(PB7);
-  //  PORTB &= ~_BV(PB7);
-  //}
 }
 
 // encoder 0
