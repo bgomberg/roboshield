@@ -34,27 +34,35 @@
     const uint8_t cV = oV | 0x02; \
     if (data & _BV(7)) PORTH = dV; \
     PORTH = cV; \
+    delayMicroseconds(1);\
     PORTH = oV; \
     if (data & _BV(6)) PORTH = dV; \
     PORTH = cV; \
+    delayMicroseconds(1);\
     PORTH = oV; \
     if (data & _BV(5)) PORTH = dV; \
     PORTH = cV; \
+    delayMicroseconds(1);\
     PORTH = oV; \
     if (data & _BV(4)) PORTH = dV; \
     PORTH = cV; \
+    delayMicroseconds(1);\
     PORTH = oV; \
     if (data & _BV(3)) PORTH = dV; \
     PORTH = cV; \
+    delayMicroseconds(1);\
     PORTH = oV; \
     if (data & _BV(2)) PORTH = dV; \
     PORTH = cV; \
+    delayMicroseconds(1);\
     PORTH = oV; \
     if (data & _BV(1)) PORTH = dV; \
     PORTH = cV; \
+    delayMicroseconds(1);\
     PORTH = oV; \
     if (data & _BV(0)) PORTH = dV; \
     PORTH = cV; \
+    delayMicroseconds(1);\
     PORTH = oV; \
   } while (0)
 
