@@ -3,8 +3,8 @@ layout: default
 title: Roboshield User Guide
 ---
 
-
 ### Roboshield Pinout
+<img src="images/roboshield_pinout.png" alt="Roboshield pinout" style="width: 950px;"/>
 
 ---
 
