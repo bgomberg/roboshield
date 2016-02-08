@@ -44,7 +44,7 @@ Digital pins 3 and 4 are shared with the SCL and SDA pins.  These pins are label
 
 <img src="images/gy-521.jpg" alt="GY-521" style="width: 150px;"/>
 
-In order to use the GY-521, configure the following options on the Roboshield
+In order to use the GY-521, configure the following options on the Roboshield:
 
 * Each I2C_EN solder bridge must be closed
 * The I2C_PWR solder bridge must be shorted to 3V3
@@ -53,4 +53,9 @@ You will need a 4-pin male header to attached the breakout board to the Roboshie
 
 When using the GY-521, digital pins D3 and D4 will not be available for use.
 
+---
+
+### Known Bugs
+
+There are currently no known bugs.
 

@@ -5,11 +5,11 @@ title: Roboshield FAQ
 
 ### How do I control more motors?
 
-Here are a few options to controlling more motors with the Roboshield:
+Here are some options to controlling more motors with the Roboshield:
 
 * Use the additional PWM pins on the Arduino Mega.  Digital pins 44, 45, and 46 are hardware PWM pins tied to Timer5 on the Arduino.  
 
-* Another options is to use the PWM that drive motor 0/1 and use those pins to drive a different H-bridge that has higher current.
+* Another option is to use the PWM that drive motor 0/1 and use those pins to drive a different H-bridge that has higher current.
 
 ---
 
@@ -21,7 +21,7 @@ You can use some of the digital pins on the Arduino as the signal pins for your 
 
 ### Why does the Arduino Mega get warm?
 
-The Roboshield uses the on board 5V regulator on the Arduino Mega.  
+The Roboshield uses the on board 5V regulator on the Arduino Mega.  This regulator will get warm with voltages above 10V.    
 
 ---
 
