@@ -5,6 +5,10 @@ title: Roboshield Assembly Page
 
 The Roboshield is distributed as a kit and will need to be assembled.  All the surface mount components have already been soldered to the board.  The only assembly required is for the through-hole components.
 
+<img src="images/roboshield_nolcd.jpg" alt="Roboshield without LCD" style="width: 750px;"/>
+
+(board shown above without female digital/analog headers)
+
 ### Part List
 
 * 3 x 40-pin male headers (for servos, 6-pin motor headers, and power header)
