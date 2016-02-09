@@ -10,7 +10,11 @@ title: Roboshield User Guide
 
 ### Applying Power
 
-Main power (7-15V) for the Roboshield is applied through the main power terminals (upper left corner).  **Never** apply power to the Arduino Mega barrel jack when using the Roboshield.  This will short the power terminals and the barrel jack.
+Main power (7-15V) for the Roboshield is applied through the main power terminals (upper left corner).  
+
+<span style="background: yellow">
+**Never** apply power to the Arduino Mega barrel jack when using the Roboshield.  This will short the power terminals and the barrel jack.
+</span>
 
 7-15V may be applied and by default, this voltage is sent directly to the motor drivers and is regulated to 5V (8A maximum current) for the servos.  NOTE: when applying a voltage above 10V, the Arduino Mega 5V regulator will become hot, but will be functional.
 
@@ -28,7 +32,7 @@ Main power (7-15V) for the Roboshield is applied through the main power terminal
 
 ### 6-pin Motor Headers
 
-The Roboshield support 6-pin Pololu motor headers.  The motor connector should be plugged in with the Red wire towards the left side of the board (connected to pin A).  The White wire should be connected to pin EB.  
+The Roboshield supports 6-pin Pololu motor headers.  The motor connector should be plugged in with the Red wire towards the left side of the board (connected to pin A).  The White wire should be connected to pin EB.  
 
 Only 1 pin of the quadrature encoders are read by the software library (the EA pin) and only the rising edge of the pin is used in counting rotation.  The EB pin is accessible via a solder hole to the right of the pin.
 
@@ -49,7 +53,7 @@ In order to use the GY-521, configure the following options on the Roboshield:
 * Each I2C_EN solder bridge must be closed
 * The I2C_PWR solder bridge must be shorted to 3V3
 
-You will need a 4-pin male header to attached the breakout board to the Roboshield.  Solder the header to the pins: SDA, SCL, GND, and VCC on the GY-521.
+You will need a 4-pin male header to attach the breakout board to the Roboshield.  Solder the header to the pins: SDA, SCL, GND, and VCC on the GY-521.
 
 When using the GY-521, digital pins D3 and D4 will not be available for use.
 

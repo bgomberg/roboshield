@@ -9,7 +9,7 @@ Here are some options to controlling more motors with the Roboshield:
 
 * Use the additional PWM pins on the Arduino Mega.  Digital pins 44, 45, and 46 are hardware PWM pins tied to Timer5 on the Arduino.  
 
-* Another option is to use the PWM that drive motor 0/1 and use those pins to drive a different H-bridge that has higher current.
+* Another option is to use the PWM pins that drive motor 0/1 and use those pins to drive a different H-bridge that has higher current.
 
 ---
 
