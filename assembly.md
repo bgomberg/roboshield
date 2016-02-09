@@ -7,8 +7,8 @@ The Roboshield is distributed as a kit and will need to be assembled.  All the s
 
 ### Part List
 
-* 3 x 40-pin male headers
-* 3 x 40-pin female headers
+* 3 x 40-pin male headers (for servos, 6-pin motor headers, and power header)
+* 3 x 40-pin female headers (for digital/analog I/O)
 * 1 x 16-pin female headers (for LCD connector on shield)
 * 4 green 2-pin block terminals (connect together before soldering)
 * 1 blue 2-pin block terminal
@@ -20,7 +20,7 @@ The Roboshield is distributed as a kit and will need to be assembled.  All the s
 
 * When soldering the servo headers, use the female headers to keep the male servo headers aligned.  If the headers are not aligned, it will be difficult to plug in servos.
 
-* Use the same alignment technique when soldering the analog and digital headers.
+* Use the same alignment technique when soldering the female analog and digital headers.
 
 * When soldering headers in general, solder one pin first and then check the header alignment.  If the header is straight and flush with the board, then solder the remaining pins.
 
