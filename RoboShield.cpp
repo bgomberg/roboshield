@@ -1,9 +1,12 @@
 #include "RoboShield.h"
 #include "RoboShield_Defines.h"
+
 #include <Arduino.h>
 #include <Wire.h>
 
-static RoboShield *s_active_object = NULL;
+
+static uint8_t s_lcd_line = 0;
+
 
 // Public methods
 ////////////////////////////////////////////////////////////////////////////////
@@ -41,7 +44,7 @@ bool RoboShield::readPin(uint8_t pin) {
   }
 }
 
-void RoboShield::setPin(uint8_t pin, bool set_high) {
+void RoboShield::writePin(uint8_t pin, bool set_high) {
   if (pin < NUM_DIGITAL_PINS) {
     // this is a pin on the shield
     digitalWrite(DIGITAL_PIN_MAPPING[pin], set_high);
@@ -53,20 +56,21 @@ void RoboShield::setPin(uint8_t pin, bool set_high) {
   }
 }
 
-int RoboShield::getAnalog(uint8_t pin) {
+uint16_t RoboShield::getAnalog(uint8_t pin) {
   return analogRead(pin);
 }
 
-float RoboShield::batteryVoltage(void) {
-  return (float)(analogRead(BATTERY_VOLTAGE_PIN) * 5.0 * 9.5 / 2.0 / 1012.0);
+uint16_t RoboShield::batteryVoltage(void) {
+  return analogRead(BATTERY_VOLTAGE_PIN) * 23; // 1000 * (9.5 / 2) * (5 / 1024) = 23.2
 }
 
 static uint8_t motor_value = 0;
 static uint8_t old_motor_value = 0;
 void RoboShield::setMotor(uint8_t num, int8_t speed) {
-  if (!_motor_init) {
+  static bool motor_initialized = false;
+  if (!motor_initialized) {
     motorInit();
-    _motor_init = true;
+    motor_initialized = true;
   }
 
   motor_value &= ~(0x03 << (2 * num)); // clear the direction bits for the given motor
@@ -109,9 +113,16 @@ void RoboShield::setServo(uint8_t num, int8_t pos) {
   if (num >= NUM_SERVOS) {
     return;
   }
-  if (!_servo_init) {
-    INIT_TIMER();
-    _servo_init = true;
+  static bool servo_initialized = false;
+  if (!servo_initialized) {
+    cli();
+    TCCR1A = 0;
+    TCCR1B = 0x02;
+    TCNT1 = 0;
+    OCR1A = 40000;
+    TIMSK1 = 0x02;
+    sei();
+    servo_initialized = true;
   }
   servo_value[num] = (uint16_t)map((int16_t)pos, -100, 100, 0, 2000);
   servo_enabled[num] = (1 << num);
@@ -133,68 +144,41 @@ void RoboShield::resetEncoder(uint8_t num) {
     encoder0 = 0;
 }
 
-const int MPU=0x68;  // I2C address of the MPU-6050
+const int MPU6050_ADDRESS=0x68;  // I2C address of the MPU-6050
 int16_t AcX,AcY,AcZ,Tmp,GyX,GyY,GyZ;
 void RoboShield::initMPU6050(){
   Wire.begin();
-  Wire.beginTransmission(MPU);
+  Wire.beginTransmission(MPU6050_ADDRESS);
   Wire.write(0x6B);  // PWR_MGMT_1 register
   Wire.write(0);     // set to zero (wakes up the MPU-6050)
-  Wire.endTransmission(true);
+  Wire.endTransmission(MPU6050_ADDRESS);
 }
 
-void RoboShield::readMPU(void) { 
-  Wire.beginTransmission(MPU);
+MPU6050Reading RoboShield::readMPU6050(void) {
+  MPU6050Reading reading;
+  Wire.beginTransmission(MPU6050_ADDRESS);
   Wire.write(0x3B);  // starting with register 0x3B (ACCEL_XOUT_H)
   Wire.endTransmission(false);
-  Wire.requestFrom(MPU,14,true);  // request a total of 14 registers
-  AcX=Wire.read()<<8|Wire.read();  // 0x3B (ACCEL_XOUT_H) & 0x3C (ACCEL_XOUT_L)    
-  AcY=Wire.read()<<8|Wire.read();  // 0x3D (ACCEL_YOUT_H) & 0x3E (ACCEL_YOUT_L)
-  AcZ=Wire.read()<<8|Wire.read();  // 0x3F (ACCEL_ZOUT_H) & 0x40 (ACCEL_ZOUT_L)
-  Tmp=Wire.read()<<8|Wire.read();  // 0x41 (TEMP_OUT_H) & 0x42 (TEMP_OUT_L)
-  GyX=Wire.read()<<8|Wire.read();  // 0x43 (GYRO_XOUT_H) & 0x44 (GYRO_XOUT_L)
-  GyY=Wire.read()<<8|Wire.read();  // 0x45 (GYRO_YOUT_H) & 0x46 (GYRO_YOUT_L)
-  GyZ=Wire.read()<<8|Wire.read();  // 0x47 (GYRO_ZOUT_H) & 0x48 (GYRO_ZOUT_L)
-}
-
-int16_t RoboShield::readAccelX(void) {
-  return AcX;
-}
-
-int16_t RoboShield::readAccelY(void) {
-  return AcY;
-}
-
-int16_t RoboShield::readAccelZ(void) {
-  return AcZ;
-}
-
-int16_t RoboShield::readGyroX(void) {
-  return GyX;
-}
-
-int16_t RoboShield::readGyroY(void) {
-  return GyY;
-}
-
-int16_t RoboShield::readGyroZ(void) {
-  return GyZ;
+  Wire.requestFrom(MPU6050_ADDRESS, 14, true);  // request a total of 14 registers
+  reading.accel_x = (Wire.read() << 8) | Wire.read(); // 0x3B (ACCEL_XOUT_H) & 0x3C (ACCEL_XOUT_L)
+  reading.accel_y = (Wire.read() << 8) | Wire.read(); // 0x3D (ACCEL_YOUT_H) & 0x3E (ACCEL_YOUT_L)
+  reading.accel_z = (Wire.read() << 8) | Wire.read(); // 0x3F (ACCEL_ZOUT_H) & 0x40 (ACCEL_ZOUT_L)
+  reading.temp = (Wire.read() << 8) | Wire.read(); // 0x41 (TEMP_OUT_H) & 0x42 (TEMP_OUT_L)
+  reading.gyro_x = (Wire.read() << 8) | Wire.read(); // 0x43 (GYRO_XOUT_H) & 0x44 (GYRO_XOUT_L)
+  reading.gyro_y = (Wire.read() << 8) | Wire.read(); // 0x45 (GYRO_YOUT_H) & 0x46 (GYRO_YOUT_L)
+  reading.gyro_z = (Wire.read() << 8) | Wire.read(); // 0x47 (GYRO_ZOUT_H) & 0x48 (GYRO_ZOUT_L)
+  return reading;
 }
 
 // Private methods
 ////////////////////////////////////////////////////////////////////////////////
 
-void RoboShield::init(void) {
-  if (s_active_object) {
-    // we've already run this
+void RoboShield::init(uint8_t options) {
+  static bool initialized = false;
+  if (initialized) {
     return;
   }
-  s_active_object = this;
-
-  // initialize class variables
-  _lcd_line = 0;
-  _servo_init = false;
-  _motor_init = false;
+  initialized = true;
 
   // configure any pins we don't want to be INPUT (the default)
   pinMode(BUTTON_PIN, INPUT_PULLUP);
@@ -203,7 +187,7 @@ void RoboShield::init(void) {
   pinMode(PWM1_PIN, OUTPUT);
   pinMode(PWM2_PIN, OUTPUT);
   pinMode(PWM3_PIN, OUTPUT);
-  
+
   pinMode(CLK_S_PIN, OUTPUT);
   digitalWrite(CLK_S_PIN, LOW);
   pinMode(DATA_S_PIN, OUTPUT);
@@ -217,7 +201,7 @@ void RoboShield::init(void) {
   digitalWrite(CLK_M_PIN, LOW);
   pinMode(DATA_M_PIN, OUTPUT);
   digitalWrite(DATA_M_PIN, LOW);
-  
+
   pinMode(LCD_EN_PIN, OUTPUT);
   digitalWrite(LCD_EN_PIN, LOW);
 
@@ -252,7 +236,7 @@ void RoboShield::lcdWrite4Bits(uint8_t data, bool is_control) {
   const uint8_t oV = PORTB & ~(0x60);
   const uint8_t dV = oV | 0x40;
   const uint8_t cV = oV | 0x20;
-    
+
   if (data & _BV(3)) PORTB = dV;
     PORTB = cV;
     PORTB = oV;
@@ -273,7 +257,7 @@ void RoboShield::lcdWrite4Bits(uint8_t data, bool is_control) {
   }
   PORTB = cV;
   PORTB = oV;
-  
+
   // toggle the LCD_E pin
   PORTE |= _BV(PE3);
   PORTE &= ~_BV(PE3);
@@ -282,13 +266,14 @@ void RoboShield::lcdWrite4Bits(uint8_t data, bool is_control) {
 
 void RoboShield::lcdWrite(uint8_t data, bool is_control) {
   if (data == '\n') {
-    _lcd_line = (_lcd_line + 1) % 2;
-    lcdSetCursor(0, _lcd_line);
+    // swap the line between 0 and 1
+    s_lcd_line = (s_lcd_line == 1) ? 0 : 1;
+    lcdSetCursor(0, s_lcd_line);
     return;
   } else if (data == '\r') {
     return;
   }
-  lcdWrite4Bits(data>>4, is_control);
+  lcdWrite4Bits(data >> 4, is_control);
   lcdWrite4Bits(data, is_control);
 }
 
@@ -305,7 +290,7 @@ void RoboShield::lcdClear(void) {
   // clear the display
   lcdWrite(0x01, true);
   delayMicroseconds(3300);
-  _lcd_line = 0;
+  s_lcd_line = 0;
 }
 
 void RoboShield::lcdPrintf(const char *format, ...) {
@@ -420,6 +405,7 @@ ISR(INT2_vect, ISR_NOBLOCK) {
   encoder1++;
 }
 
+
 // Debugging Mode
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -452,7 +438,7 @@ void RoboShield::debuggingMode(void) {
     }
 
     while(!buttonPressed()) {}
-    
+
     if (buttonPressed()) {
       uint32_t start_time = millis();
       uint8_t hold = 0;
@@ -571,18 +557,17 @@ void RoboShield::debuggingMode(void) {
               lcdPrintf("test  E1:%lu", readEncoder(1));
               break;
             case 4:
-              printFloat(batteryVoltage(), 2);
-              lcdPrintf("V");
+              lcdPrintf("%dmV", batteryVoltage());
               break;
             case 5:
               initMPU6050();
-              
-              while(1==1) {
+
+              while (true) {
                 lcdClear();
-                readMPU();
-                lcdPrintf ("%d", readAccelX());
+                MPU6050Reading reading = readMPU6050();
+                lcdPrintf ("%d", reading.accel_x);
                 lcdSetCursor(0,1);
-                lcdPrintf ("%d", readGyroZ());
+                lcdPrintf ("%d", reading.gyro_x);
                 delay(100);
               }
               break;
@@ -614,4 +599,3 @@ void RoboShield::debuggingMode(void) {
     delay(50);
   }
 }
-

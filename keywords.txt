@@ -1,0 +1,33 @@
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+MPU6050Reading      KEYWORD1
+RoboShield          KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+buttonPressed       KEYWORD2
+setLED              KEYWORD2
+setPinMode          KEYWORD2
+readPin             KEYWORD2
+writePin            KEYWORD2
+getAnalog           KEYWORD2
+batteryVoltage      KEYWORD2
+setServo            KEYWORD2
+setMotor            KEYWORD2
+readEncoder         KEYWORD2
+resetEncoder        KEYWORD2
+debuggingMode        KEYWORD2
+lcdSetCursor        KEYWORD2
+lcdClear        KEYWORD2
+lcdPrintf        KEYWORD2
+printFloat        KEYWORD2
+initMPU6050        KEYWORD2
+readMPU6050        KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################

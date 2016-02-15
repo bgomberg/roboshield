@@ -1,31 +1,20 @@
-#ifndef __ROBO_SHIELD_DEFINES_H__
-#define __ROBO_SHIELD_DEFINES_H__
-
-#include <inttypes.h>
-
+#pragma once
 
 #ifndef __AVR_ATmega2560__
 #error "This board is not yet supported for the RoboShield!"
 #endif
 
+#include <inttypes.h>
+
 
 /* General */
 #define NUM_SERVOS                8
-#define MAX_BATTERY_VOLTAGE       15.0
 #define MAX_USED_DIGITAL_PIN      21
-#define TIMER_ISR                 TIMER1_COMPA_vect
 
 
 /* Macros */
 #define INIT_TIMER() \
   do { \
-    cli(); \
-    TCCR1A = 0; \
-    TCCR1B = 0x02; \
-    TCNT1 = 0; \
-    OCR1A = 40000; \
-    TIMSK1 = 0x02; \
-    sei(); \
   } while (0)
 #define SHIFT_OUT_BYTE(data) \
   do { \
@@ -95,7 +84,7 @@ static const uint8_t DIGITAL_PIN_MAPPING[] = {
   DIGITAL_1_PIN,
   DIGITAL_2_PIN,
   DIGITAL_3_PIN,
-  DIGITAL_4_PIN,  
+  DIGITAL_4_PIN,
   DIGITAL_5_PIN,
   DIGITAL_6_PIN
 };
@@ -104,6 +93,3 @@ static const uint8_t DIGITAL_PIN_MAPPING[] = {
 
 /* Analog pins */
 #define BATTERY_VOLTAGE_PIN       11
-
-
-#endif // __ROBO_SHIELD_DEFINES_H__

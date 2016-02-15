@@ -1,27 +1,37 @@
-#ifndef __ROBO_SHIELD_H__
-#define __ROBO_SHIELD_H__
+#pragma once
 
 #include <inttypes.h>
 #include "Print.h"
 
 
+typedef struct {
+  int16_t accel_x;
+  int16_t accel_y;
+  int16_t accel_z;
+  int16_t gyro_x;
+  int16_t gyro_y;
+  int16_t gyro_z;
+  int16_t temp;
+} MPU6050Reading;
+
+
 class RoboShield : public Print {
 public:
   // constructor
-  RoboShield() { init(); }
-  
+  RoboShield(uint8_t options=0) { init(options); }
+
   // general methods
   bool buttonPressed(void);
   void setLED(bool on);
-  
+
   // digital pin methods
   void setPinMode(uint8_t pin, uint8_t mode);
   bool readPin(uint8_t pin);
-  void setPin(uint8_t pin, bool set_high);
-  
+  void writePin(uint8_t pin, bool set_high);
+
   // analog input methods
-  int getAnalog(uint8_t pin);
-  float batteryVoltage(void);
+  uint16_t getAnalog(uint8_t pin);
+  uint16_t batteryVoltage(void);
 
   // servo methods
   void setServo(uint8_t num, int8_t pos);
@@ -32,7 +42,7 @@ public:
   void resetEncoder(uint8_t num);
 
   void debuggingMode(void);
-  
+
   // LCD methods
   void lcdSetCursor(uint8_t col, uint8_t row);
   void lcdClear(void);
@@ -42,27 +52,14 @@ public:
   using Print::write;
 
   void initMPU6050(void);
-  void readMPU(void);
-  int16_t readAccelX(void);
-  int16_t readAccelY(void);
-  int16_t readAccelZ(void);
-  int16_t readGyroX(void);
-  int16_t readGyroY(void);
-  int16_t readGyroZ(void);
+  MPU6050Reading readMPU6050(void);
 
 private:
   // private methods
-  void init(void);
+  void init(uint8_t options);
   void lcdInit(void);
   void lcdWrite(uint8_t data, bool is_control);
   void lcdWrite4Bits(uint8_t value, bool is_control);
   void motorInit(void);
-  
-  // class variables
-  uint8_t _lcd_line;
-  bool _servo_init;
-  bool _motor_init;
 
 };
-
-#endif // __ROBO_SHIELD_H__

@@ -1,7 +1,7 @@
 #include <Wire.h>
-#include "RoboShield.h"
+#include <RoboShield.h>
 
-RoboShield roboShield;
+RoboShield roboShield(0);
 
 void setup() {
   if (roboShield.buttonPressed())
@@ -11,7 +11,7 @@ void setup() {
 void loop() {
   roboShield.setLED(roboShield.buttonPressed());
   roboShield.lcdClear();
-  //roboShield.lcdPrintf("HELLO\nTIME: %lu", millis());
+  roboShield.lcdPrintf("HELLO\nTIME: %lu", millis());
   roboShield.setMotor(0,0);
   //roboShield.lcdPrintf("%d %d", roboShield.readEncoder(0), analogRead(14));
 
@@ -19,7 +19,7 @@ void loop() {
 
   while(1==1) {
     roboShield.lcdClear();
-    roboShield.readMPU();
+    roboShield.readMPU6050();
     roboShield.lcdPrintf ("%d", roboShield.readAccelX());
     roboShield.lcdSetCursor(0,1);
     roboShield.lcdPrintf ("%d", roboShield.readGyroZ());
@@ -31,7 +31,7 @@ void loop() {
   for (i=0;i<7;i++) {
     roboShield.setServo(i,100);
   }
-  
+
   while(1==1) {
     //roboShield.setMotor(0,50);
     //roboShield.setMotor(1,-50);
